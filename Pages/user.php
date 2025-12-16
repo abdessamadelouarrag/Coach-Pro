@@ -6,7 +6,6 @@
     <title>Espace Sportif - CoachPro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
@@ -43,249 +42,283 @@
         </div>
     </nav>
 
+    <!-- BANNER WELCOME SPORTIF -->
+    <div class="m-4 md:m-10 relative group">
+        <div class="relative w-full h-56 md:h-72 rounded-3xl overflow-hidden shadow-2xl">
+            <!-- Image dynamique (Sport/Action) -->
+            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop" 
+                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60">
+            
+            <!-- Filtre dégradé Orange vers Noir -->
+            <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-brand-dark via-brand-dark/60 to-brand-orange/20"></div>
+
+            <!-- Contenu -->
+            <div class="absolute inset-0 flex flex-col justify-center px-8 md:px-16">
+                <span class="inline-block text-brand-orange font-bold tracking-widest text-xs uppercase mb-2">Go Hard or Go Home</span>
+                <h1 class="text-2xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                    Prêt à dépasser <br>
+                    <span class="text-stroke-white text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">vos limites ?</span>
+                </h1>
+                <p class="text-gray-300 max-w-xl text-[9px] md:text-[15px] mb-8">
+                    "Le seul mauvais entraînement est celui que tu n'as pas fait." <br>
+                    Regardez les créneaux disponibles aujourd'hui.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-7xl mx-auto px-4">
         
-        <!-- SECTION 1: Historique Rapide -->
+        <!-- SECTION 1: Historique & Gestion Réservations -->
         <div class="mb-12">
-            <div class="bg-gradient-to-r from-brand-surface to-brand-card p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-white">Vos séances à venir</h2>
-                    <p class="text-brand-gray text-sm">Vous avez 1 séance confirmée cette semaine.</p>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <i data-lucide="calendar-check" class="text-brand-orange"></i> Mes Réservations
+            </h2>
+            <div class="bg-brand-card rounded-2xl overflow-hidden border border-white/10">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-brand-surface text-brand-gray text-xs uppercase tracking-wider">
+                                <th class="p-4">Coach</th>
+                                <th class="p-4">Date & Heure</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Statut</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 text-sm" id="reservationTable">
+                            
+                            <!-- Ligne 1 : Réservation Confirmée (Modifiable/Annulable) -->
+                            <tr class="hover:bg-brand-surface/50 transition group" id="row-1">
+                                <td class="p-4 font-semibold flex items-center gap-3">
+                                    <img src="https://i.pravatar.cc/150?img=11" class="w-8 h-8 rounded-full">
+                                    Jean Dupont
+                                </td>
+                                <td class="p-4 text-white">24 Oct, 14:00</td>
+                                <td class="p-4">Musculation</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-green-500/10 text-green-500 rounded-full text-xs border border-green-500/20">Confirmé</span></td>
+                                <td class="p-4 text-right">
+                                    <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="openEditModal('Jean Dupont', '2023-10-24', '14:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 transition" title="Modifier">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </button>
+                                        <button onclick="openCancelModal('Jean Dupont', '24 Oct, 14:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Ligne 2 : En attente (Annulable uniquement) -->
+                            <tr class="hover:bg-brand-surface/50 transition group" id="row-2">
+                                <td class="p-4 font-semibold flex items-center gap-3">
+                                    <img src="https://i.pravatar.cc/150?img=5" class="w-8 h-8 rounded-full">
+                                    Maria Lopez
+                                </td>
+                                <td class="p-4 text-white">28 Oct, 09:00</td>
+                                <td class="p-4">Yoga</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded-full text-xs border border-yellow-500/20">En attente</span></td>
+                                <td class="p-4 text-right">
+                                    <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="openCancelModal('Maria Lopez', '28 Oct, 09:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Ligne 3 : Terminée (Aucune action) -->
+                            <tr class="bg-brand-surface/20 opacity-60">
+                                <td class="p-4 font-semibold flex items-center gap-3">
+                                    <img src="https://i.pravatar.cc/150?img=60" class="w-8 h-8 rounded-full grayscale">
+                                    Marc Steel
+                                </td>
+                                <td class="p-4">10 Oct, 18:00</td>
+                                <td class="p-4">Crossfit</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-gray-500/20 text-gray-400 rounded-full text-xs border border-gray-500/20">Terminé</span></td>
+                                <td class="p-4 text-right text-xs text-brand-gray">
+                                    Aucune action
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <button class="px-6 py-2 bg-white/5 border border-white/10 rounded-full text-sm hover:bg-white/10 transition">
-                    Voir tout l'historique
-                </button>
             </div>
         </div>
 
-        <!-- SECTION 2: Trouver et Réserver un Coach -->
+        <!-- SECTION 2: Trouver et Réserver un Coach (Gardée identique) -->
         <div id="reservation-section">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold flex items-center gap-2">
-                        <i data-lucide="dumbbell" class="text-brand-orange"></i> Réserver une séance
-                    </h2>
-                    <p class="text-brand-gray mt-1">Choisissez votre coach et cliquez sur un créneau pour réserver.</p>
-                </div>
-            </div>
+            <h2 class="text-3xl font-bold flex items-center gap-2 mb-6">
+                <i data-lucide="search" class="text-brand-orange"></i> Réserver une séance
+            </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
                 <!-- COACH CARD 1 -->
-                <div class="bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300 group flex flex-col h-full">
+                <div class="bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="relative">
-                            <img src="https://i.pravatar.cc/150?img=11" class="w-16 h-16 rounded-full border-2 border-brand-orange object-cover">
-                            <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-brand-card rounded-full"></div>
-                        </div>
+                        <img src="https://i.pravatar.cc/150?img=11" class="w-16 h-16 rounded-full border-2 border-brand-orange">
                         <div>
                             <h3 class="font-bold text-lg">Jean Dupont</h3>
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="star" class="w-3 h-3 text-brand-orange fill-brand-orange"></i>
-                                <span class="text-sm font-bold">4.9</span>
-                                <span class="text-xs text-brand-gray">(142 avis)</span>
-                            </div>
-                            <p class="text-brand-orange text-sm font-semibold mt-1">Musculation</p>
+                            <p class="text-brand-orange text-sm font-semibold">Musculation</p>
                         </div>
                     </div>
-                    
-                    <p class="text-brand-gray text-sm mb-6 flex-grow">
-                        Spécialiste en transformation physique. Je vous aide à atteindre vos objectifs de prise de masse ou de sèche.
-                    </p>
-                    
                     <div class="border-t border-white/5 pt-4">
-                        <p class="text-xs font-semibold text-white uppercase mb-3 flex items-center gap-2">
-                            <i data-lucide="calendar" class="w-3 h-3"></i> Créneaux disponibles
-                        </p>
+                        <p class="text-xs font-semibold text-white uppercase mb-3">Créneaux :</p>
                         <div class="flex flex-wrap gap-2">
-                            <button onclick="openModal('Jean Dupont', 'Musculation', 'Lundi 24 Oct - 14:00')" 
-                                class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange hover:border-brand-orange hover:text-white transition cursor-pointer">
-                                Lun 14:00
-                            </button>
-                            <button onclick="openModal('Jean Dupont', 'Musculation', 'Mardi 25 Oct - 09:00')" 
-                                class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange hover:border-brand-orange hover:text-white transition cursor-pointer">
-                                Mar 09:00
-                            </button>
-                            <button onclick="openModal('Jean Dupont', 'Musculation', 'Vendredi 28 Oct - 18:00')" 
-                                class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange hover:border-brand-orange hover:text-white transition cursor-pointer">
-                                Ven 18:00
-                            </button>
+                            <button onclick="openBookingModal('Jean Dupont', 'Musculation', 'Lundi 24 Oct - 14:00')" class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition">Lun 14:00</button>
+                            <button onclick="openBookingModal('Jean Dupont', 'Musculation', 'Mardi 25 Oct - 09:00')" class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition">Mar 09:00</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- COACH CARD 2 -->
-                <div class="bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300 group flex flex-col h-full">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="relative">
-                            <img src="https://i.pravatar.cc/150?img=5" class="w-16 h-16 rounded-full border-2 border-brand-orange object-cover">
-                            <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-brand-card rounded-full"></div>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg">Maria Lopez</h3>
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="star" class="w-3 h-3 text-brand-orange fill-brand-orange"></i>
-                                <span class="text-sm font-bold">5.0</span>
-                                <span class="text-xs text-brand-gray">(89 avis)</span>
-                            </div>
-                            <p class="text-brand-orange text-sm font-semibold mt-1">Yoga & Pilates</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-brand-gray text-sm mb-6 flex-grow">
-                        Cours axés sur la souplesse, la respiration et le renforcement des muscles profonds.
-                    </p>
-                    
-                    <div class="border-t border-white/5 pt-4">
-                        <p class="text-xs font-semibold text-white uppercase mb-3 flex items-center gap-2">
-                            <i data-lucide="calendar" class="w-3 h-3"></i> Créneaux disponibles
-                        </p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="openModal('Maria Lopez', 'Yoga', 'Mercredi 26 Oct - 07:00')" 
-                                class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange hover:border-brand-orange hover:text-white transition cursor-pointer">
-                                Mer 07:00
-                            </button>
-                            <button onclick="openModal('Maria Lopez', 'Yoga', 'Jeudi 27 Oct - 19:00')" 
-                                class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange hover:border-brand-orange hover:text-white transition cursor-pointer">
-                                Jeu 19:00
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                 <!-- COACH CARD 3 -->
-                 <div class="bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300 group flex flex-col h-full">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="relative">
-                            <img src="https://i.pravatar.cc/150?img=60" class="w-16 h-16 rounded-full border-2 border-brand-orange object-cover">
-                            <div class="absolute bottom-0 right-0 w-4 h-4 bg-gray-500 border-2 border-brand-card rounded-full"></div>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg">Marc Steel</h3>
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="star" class="w-3 h-3 text-brand-orange fill-brand-orange"></i>
-                                <span class="text-sm font-bold">4.7</span>
-                                <span class="text-xs text-brand-gray">(210 avis)</span>
-                            </div>
-                            <p class="text-brand-orange text-sm font-semibold mt-1">Crossfit</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-brand-gray text-sm mb-6 flex-grow">
-                        Haute intensité. Préparation physique générale. Dépassez vos limites avec moi.
-                    </p>
-                    
-                    <div class="border-t border-white/5 pt-4">
-                        <p class="text-xs font-semibold text-white uppercase mb-3 flex items-center gap-2">
-                            <i data-lucide="calendar" class="w-3 h-3"></i> Créneaux disponibles
-                        </p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="openModal('Marc Steel', 'Crossfit', 'Lundi 24 Oct - 18:00')" 
-                                class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange hover:border-brand-orange hover:text-white transition cursor-pointer">
-                                Lun 18:00
-                            </button>
-                            <button onclick="openModal('Marc Steel', 'Crossfit', 'Samedi 29 Oct - 10:00')" 
-                                class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange hover:border-brand-orange hover:text-white transition cursor-pointer">
-                                Sam 10:00
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
 
     </div>
 
-    <!-- MODAL DE RESERVATION (Caché par défaut) -->
+    <!-- ================= MODALS ================= -->
+
+    <!-- 1. MODAL RESERVATION (Création) -->
     <div id="bookingModal" class="fixed inset-0 z-50 hidden">
-        <!-- Overlay flou -->
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal()"></div>
-        
-        <!-- Contenu Modal -->
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 bg-brand-card border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-white">Confirmer la Réservation</h3>
-                <button onclick="closeModal()" class="text-brand-gray hover:text-white transition">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAllModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 bg-brand-card border border-white/10 rounded-2xl shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4">Nouvelle Réservation</h3>
+            <div class="bg-brand-surface p-4 rounded-xl border border-white/5 mb-4">
+                <p id="bookCoach" class="font-semibold text-brand-orange">Coach</p>
+                <p id="bookDate" class="text-sm text-white">Date</p>
             </div>
+            <textarea class="w-full bg-brand-dark border border-white/10 rounded-lg p-3 text-sm mb-4 h-20" placeholder="Note pour le coach..."></textarea>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeAllModals()" class="py-2 border border-white/10 rounded-lg">Annuler</button>
+                <button onclick="confirmAction('booking')" class="py-2 bg-brand-orange rounded-lg font-bold">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MODAL MODIFICATION (Bleu/Orange) -->
+    <div id="editModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAllModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 bg-brand-card border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
+                <h3 class="text-xl font-bold text-white">Modifier la séance</h3>
+            </div>
+            
+            <p class="text-sm text-brand-gray mb-4">Avec <span id="editCoachName" class="text-white font-semibold">Coach</span></p>
 
             <div class="space-y-4 mb-6">
-                <!-- Récapitulatif -->
-                <div class="bg-brand-surface p-4 rounded-xl border border-white/5 space-y-2">
-                    <div class="flex justify-between">
-                        <span class="text-brand-gray text-sm">Coach :</span>
-                        <span id="modalCoachName" class="font-semibold text-brand-orange">Nom Coach</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-brand-gray text-sm">Discipline :</span>
-                        <span id="modalType" class="font-semibold text-white">Sport</span>
-                    </div>
-                    <div class="w-full h-px bg-white/10 my-2"></div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-brand-gray text-sm">Date & Heure :</span>
-                        <span id="modalDate" class="font-bold text-white bg-white/10 px-2 py-1 rounded text-sm">Date</span>
-                    </div>
-                </div>
-
-                <!-- Input Note -->
                 <div>
-                    <label class="text-xs text-brand-gray mb-1 block">Ajouter une note au coach (optionnel)</label>
-                    <textarea class="w-full bg-brand-dark border border-white/10 rounded-lg p-3 text-sm focus:border-brand-orange outline-none resize-none h-20" placeholder="Ex: J'ai une douleur au genou, je veux travailler le cardio..."></textarea>
+                    <label class="text-xs text-brand-gray block mb-1">Nouvelle Date</label>
+                    <input type="date" class="w-full bg-brand-surface border border-white/10 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs text-brand-gray block mb-1">Nouvelle Heure</label>
+                    <input type="time" class="w-full bg-brand-surface border border-white/10 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="closeModal()" class="py-3 bg-transparent border border-white/10 text-white rounded-lg font-semibold hover:bg-white/5 transition">
-                    Annuler
-                </button>
-                <button onclick="confirmBooking()" class="py-3 bg-brand-orange text-white rounded-lg font-semibold hover:bg-orange-600 transition shadow-[0_0_15px_rgba(255,107,0,0.3)]">
-                    Confirmer
-                </button>
+                <button onclick="closeAllModals()" class="py-3 bg-transparent border border-white/10 text-white rounded-lg hover:bg-white/5 transition">Annuler</button>
+                <button onclick="confirmAction('edit')" class="py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,0.3)]">Enregistrer</button>
             </div>
         </div>
     </div>
 
-    <!-- Notification Toast (Caché par défaut) -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-500 z-50 flex items-center gap-3">
+    <!-- 3. MODAL ANNULATION (Rouge/Danger) -->
+    <div id="cancelModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAllModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-6 bg-brand-card border border-red-500/30 rounded-2xl shadow-2xl animate-fade-in">
+            <div class="flex flex-col items-center text-center mb-6">
+                <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-red-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Annuler la réservation ?</h3>
+                <p class="text-sm text-brand-gray mt-2">Cette action est irréversible. Le coach sera notifié.</p>
+                <div class="mt-4 bg-brand-surface px-4 py-2 rounded text-sm text-white w-full">
+                    <span id="cancelDetails">Détails</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeAllModals()" class="py-3 bg-transparent border border-white/10 text-white rounded-lg hover:bg-white/5 transition">Retour</button>
+                <button onclick="confirmAction('cancel')" class="py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-500 transition shadow-[0_0_15px_rgba(220,38,38,0.3)]">Oui, Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toastSuccess" class="fixed bottom-5 right-5 bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl transform translate-y-40 opacity-0 transition-all duration-500 z-50 flex items-center gap-3">
         <i data-lucide="check-circle" class="w-6 h-6"></i>
         <div>
-            <h4 class="font-bold">Réservation Confirmée !</h4>
-            <p class="text-xs text-green-100">Votre coach a reçu votre demande.</p>
+            <h4 class="font-bold">Succès !</h4>
+            <p id="toastMessage" class="text-xs text-green-100">Action effectuée.</p>
+        </div>
+    </div>
+
+    <div id="toastDelete" class="fixed bottom-5 right-5 bg-red-600 text-white px-6 py-4 rounded-xl shadow-2xl transform translate-y-40 opacity-0 transition-all duration-500 z-50 flex items-center gap-3">
+        <i data-lucide="trash-2" class="w-6 h-6"></i>
+        <div>
+            <h4 class="font-bold">Annulé</h4>
+            <p class="text-xs text-red-100">La réservation a été supprimée.</p>
         </div>
     </div>
 
     <script>
-        // Initialiser les icônes
         lucide.createIcons();
 
-        // Fonctions pour la Modal
-        const modal = document.getElementById('bookingModal');
-        const coachNameEl = document.getElementById('modalCoachName');
-        const typeEl = document.getElementById('modalType');
-        const dateEl = document.getElementById('modalDate');
+        // Elements
+        const bookingModal = document.getElementById('bookingModal');
+        const editModal = document.getElementById('editModal');
+        const cancelModal = document.getElementById('cancelModal');
 
-        function openModal(coach, type, date) {
-            coachNameEl.innerText = coach;
-            typeEl.innerText = type;
-            dateEl.innerText = date;
-            modal.classList.remove('hidden');
+        // Functions Open
+        function openBookingModal(coach, type, date) {
+            document.getElementById('bookCoach').innerText = coach + ' (' + type + ')';
+            document.getElementById('bookDate').innerText = date;
+            bookingModal.classList.remove('hidden');
         }
 
-        function closeModal() {
-            modal.classList.add('hidden');
+        function openEditModal(coach, date, time) {
+            document.getElementById('editCoachName').innerText = coach;
+            editModal.classList.remove('hidden');
         }
 
-        function confirmBooking() {
-            closeModal();
-            // Animation du Toast
-            const toast = document.getElementById('toast');
-            toast.classList.remove('translate-y-20', 'opacity-0');
+        function openCancelModal(coach, details) {
+            document.getElementById('cancelDetails').innerText = coach + " - " + details;
+            cancelModal.classList.remove('hidden');
+        }
+
+        function closeAllModals() {
+            bookingModal.classList.add('hidden');
+            editModal.classList.add('hidden');
+            cancelModal.classList.add('hidden');
+        }
+
+        // Logic Confirmation
+        function confirmAction(type) {
+            closeAllModals();
             
-            // Cacher le toast après 3 secondes
+            if (type === 'booking') {
+                showToast('toastSuccess', 'Votre demande est envoyée au coach.');
+            } else if (type === 'edit') {
+                showToast('toastSuccess', 'La modification a été enregistrée.');
+            } else if (type === 'cancel') {
+                showToast('toastDelete', '');
+                // Simulation: cacher la ligne 1 pour l'effet visuel
+                const row = document.getElementById('row-1');
+                if(row) {
+                    row.style.opacity = '0';
+                    setTimeout(() => row.style.display = 'none', 500);
+                }
+            }
+        }
+
+        function showToast(id, message) {
+            const toast = document.getElementById(id);
+            if(message && id === 'toastSuccess') document.getElementById('toastMessage').innerText = message;
+            
+            toast.classList.remove('translate-y-40', 'opacity-0');
             setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-40', 'opacity-0');
             }, 3000);
         }
     </script>

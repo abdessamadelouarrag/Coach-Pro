@@ -27,6 +27,37 @@
         </div>
     </nav>
 
+    <!-- BANNER WELCOME COACH -->
+    <div class="max-w-7xl mx-auto px-4 mb-8">
+        <div class="relative w-full h-48 md:h-64 rounded-3xl overflow-hidden shadow-2xl group">
+            <!-- Image de fond avec effet de zoom au survol -->
+            <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=2575&auto=format&fit=crop" 
+                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+            
+            <!-- Dégradé sombre pour lisibilité du texte -->
+            <div class="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/80 to-transparent"></div>
+            
+            <!-- Contenu Texte -->
+            <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-12">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-3 py-1 bg-brand-orange text-white text-xs font-bold uppercase tracking-wider rounded-full">Espace Pro</span>
+                    <span class="text-brand-gray text-xs flex items-center gap-1"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> En ligne</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">
+                    Ravi de vous revoir, <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-yellow-500">Jean !</span>
+                </h1>
+                <p class="text-gray-300 text-sm md:text-base max-w-lg mb-6">
+                    Vous avez <strong class="text-white">3 demandes</strong> en attente et votre prochaine séance commence dans <strong class="text-white">2 heures</strong>.
+                </p>
+                <div class="flex gap-4">
+                    <button class="px-6 py-2 bg-brand-orange text-white text-sm font-bold rounded-full hover:bg-orange-600 transition shadow-[0_0_20px_rgba(255,107,0,0.4)]">
+                        Gérer mon planning
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <!-- COLONNE GAUCHE: Stats & Profil -->
@@ -49,6 +80,10 @@
                     <div>
                         <label class="text-xs text-brand-gray">Spécialité</label>
                         <input type="text" value="Musculation & Cardio" class="w-full bg-brand-surface p-2 rounded text-sm border border-white/5 focus:border-brand-orange outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-brand-gray">Bio</label>
+                        <input type="text" value="bio..." class="w-full bg-brand-surface p-2 rounded text-sm border border-white/5 focus:border-brand-orange outline-none">
                     </div>
                     <button class="w-full py-2 bg-brand-surface border border-brand-orange/50 text-brand-orange text-sm rounded hover:bg-brand-orange hover:text-white transition-colors">Enregistrer les modifications</button>
                 </form>
@@ -133,11 +168,11 @@
                 <div class="mt-6">
                     <h4 class="text-sm font-semibold text-brand-gray mb-3">Créneaux ouverts :</h4>
                     <div class="flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-brand-surface border border-brand-orange/30 text-xs rounded-full flex items-center gap-2">
-                            Lun 24 Oct - 10:00 <i data-lucide="trash-2" class="w-3 h-3 text-red-400 cursor-pointer"></i>
+                        <span class="h-[60px] px-3 py-1 bg-brand-surface border border-brand-orange/30 text-xs rounded-full flex items-center gap-2">
+                            Lun 24 Oct - 10:00 <i data-lucide="trash-2" class="w-4 h-4 text-red-600 cursor-pointer"></i>
                         </span>
                         <span class="px-3 py-1 bg-brand-surface border border-brand-orange/30 text-xs rounded-full flex items-center gap-2">
-                            Mer 26 Oct - 14:00 <i data-lucide="trash-2" class="w-3 h-3 text-red-400 cursor-pointer"></i>
+                            Mer 26 Oct - 14:00 <i data-lucide="trash-2" class="w-4 h-4 text-red-600 cursor-pointer"></i>
                         </span>
                     </div>
                 </div>

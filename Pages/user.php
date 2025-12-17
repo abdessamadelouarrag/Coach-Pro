@@ -1,3 +1,26 @@
+<?php
+include __DIR__ . "/../Config/connect.php";
+
+$sql = "SELECT utilisateurs.nom, info_coach.specialite, info_coach.id_coach, disponibilite.date from utilisateurs
+        inner join info_coach on utilisateurs.id_user = info_coach.id_coach 
+        inner join disponibilite on disponibilite.id_coach = info_coach.id_coach";
+
+$result = mysqli_query($connect, $sql);
+
+$all = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+$sql2 = "SELECT * FROM disponibilite";
+$result2 = mysqli_query($connect, $sql2);
+$all2 = mysqli_fetch_all($result2, MYSQLI_ASSOC);
+
+$dispoDeCoach = [];
+
+foreach($all2 as $dispo){
+    $dispoDeCoach[$dispo['id_coach']][] = $dispo;
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -87,8 +110,6 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 text-sm" id="reservationTable">
-                            
-                            <!-- Ligne 1 : Réservation Confirmée (Modifiable/Annulable) -->
                             <tr class="hover:bg-brand-surface/50 transition group" id="row-1">
                                 <td class="p-4 font-semibold flex items-center gap-3">
                                     <img src="https://i.pravatar.cc/150?img=11" class="w-8 h-8 rounded-full">
@@ -151,25 +172,33 @@
             <h2 class="text-3xl font-bold flex items-center gap-2 mb-6">
                 <i data-lucide="search" class="text-brand-orange"></i> Réserver une séance
             </h2>
-            
+        
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- COACH CARD 1 -->
-                <div class="bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <img src="https://i.pravatar.cc/150?img=11" class="w-16 h-16 rounded-full border-2 border-brand-orange">
-                        <div>
-                            <h3 class="font-bold text-lg">Jean Dupont</h3>
-                            <p class="text-brand-orange text-sm font-semibold">Musculation</p>
+            <?php
+            foreach($all as $row){
+                echo "
+                    <!-- COACH CARD 1 -->
+                    <div class='bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300'>
+                        <div class='flex items-center gap-4 mb-4'>
+                            <img src='https://i.pravatar.cc/150?img=11' class='w-16 h-16 rounded-full border-2 border-brand-orange'>
+                            <div>
+                                <h3 class='font-bold text-lg'>". $row["nom"] ."</h3>
+                                <p class='text-brand-orange text-sm font-semibold'>". $row["specialite"] ."</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="border-t border-white/5 pt-4">
-                        <p class="text-xs font-semibold text-white uppercase mb-3">Créneaux :</p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="openBookingModal('Jean Dupont', 'Musculation', 'Lundi 24 Oct - 14:00')" class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition">Lun 14:00</button>
-                            <button onclick="openBookingModal('Jean Dupont', 'Musculation', 'Mardi 25 Oct - 09:00')" class="px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition">Mar 09:00</button>
+                        <div class='border-t border-white/5 pt-4'>
+                            <p class='text-xs font-semibold text-white uppercase mb-3'>Créneaux :</p>
+                            <div class='flex flex-wrap gap-2'>";
+
+                            foreach($dispoDeCoach[$row['id_coach']] as $dispo){
+                                echo "<button class='px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition'>". $dispo["date"] ."</button>";
+                            }
+                            echo "
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </div>";
+            }
+            ?>
             </div>
         </div>
 

@@ -1,3 +1,9 @@
+<?php
+include __DIR__ . "/../Config/connect.php";
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -30,10 +36,10 @@
                 <input type="password" class="w-full px-4 py-3 bg-brand-dark border border-white/10 rounded-lg focus:outline-none focus:border-brand-orange text-white placeholder-gray-600" placeholder="••••••••">
             </div>
             
-            <button type="button" onclick="window.location.href='coach.html'" class="w-full py-3 bg-brand-orange hover:bg-orange-600 rounded-lg font-bold text-white transition-colors">
+            <button type="button" onclick="window.location.href='coach.php'" class="w-full py-3 bg-brand-orange hover:bg-orange-600 rounded-lg font-bold text-white transition-colors">
                 Se connecter (Démo Coach)
             </button>
-            <button type="button" onclick="window.location.href='sportif.html'" class="w-full py-3 bg-transparent border border-brand-orange text-brand-orange hover:bg-brand-orange/10 rounded-lg font-bold transition-colors">
+            <button type="button" onclick="window.location.href='user.php'" class="w-full py-3 bg-transparent border border-brand-orange text-brand-orange hover:bg-brand-orange/10 rounded-lg font-bold transition-colors">
                 Se connecter (Démo Sportif)
             </button>
         </form>

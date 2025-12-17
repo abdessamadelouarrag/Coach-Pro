@@ -2,20 +2,38 @@
 include __DIR__ . "/../Config/connect.php";
 session_start();
 
+$msg = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
 
-    $sql = "SELECT * FROM utilisateurs WHERE email = $email";
+    $sql = "SELECT * FROM utilisateurs WHERE email = '$email'";
 
     $all = mysqli_query($connect, $sql);
 
     $result = mysqli_fetch_assoc($all);
 
-    if (password_verify($password, $result['mot_de_passe'])) {
-        header("Location: coach.php");
-        exit();
+    $hashpassword = $result['mot_de_passe'];
+    $rolecheck = $result['role'];
+
+    if(empty($email) || empty($password)) {
+        $msg = "<p class='text-red-700 bg-red-400/20 p-2 rounded-[10px] shadow-[0_2px_2px_rgba(250,0,1,0.7)] transition-all duration-300 ease-in-out'>Veuillez remplir tous les champs</p>";
     }
+
+
+    if (password_verify($password, $hashpassword)) {
+        if ($rolecheck == "Coach") {
+            header("Location: coach.php");
+            exit();
+        }
+        if($rolecheck == "Sportif"){
+            header("Location: user.php");
+            exit();
+        }
+    }
+
+    $msgerror = "";
 }
 
 ?>
@@ -59,6 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <form action="" method="POST" class="space-y-6">
+            <?= $msg ?>
             <div>
                 <label class="block text-sm font-medium text-brand-gray mb-2">Email</label>
                 <input type="email" name="email" class="w-full px-4 py-3 bg-brand-dark border border-white/10 rounded-lg focus:outline-none focus:border-brand-orange text-white placeholder-gray-600" placeholder="exemple@mail.com">
@@ -68,13 +87,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="password" name="password" class="w-full px-4 py-3 bg-brand-dark border border-white/10 rounded-lg focus:outline-none focus:border-brand-orange text-white placeholder-gray-600" placeholder="••••••••">
             </div>
 
-            <button type="button" class="w-full py-3 bg-brand-orange hover:bg-orange-600 rounded-lg font-bold text-white transition-colors">
+            <button type="submit" class="w-full py-3 bg-brand-orange hover:bg-orange-600 rounded-lg font-bold text-white transition-colors">
                 Se connecter
             </button>
         </form>
 
         <p class="mt-6 text-center text-sm text-brand-gray">
-            Pas encore de compte ? <a href="signup.html" class="text-brand-orange hover:underline">S'inscrire</a>
+            Pas encore de compte ? <a href="signup.php" class="text-brand-orange hover:underline">S'inscrire</a>
         </p>
     </div>
 

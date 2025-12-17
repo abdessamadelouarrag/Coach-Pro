@@ -60,7 +60,7 @@ foreach($all2 as $dispo){
             <div class="flex items-center gap-4">
                 <span class="text-sm text-brand-gray hidden md:block">Bienvenue, Thomas</span>
                 <img src="https://i.pravatar.cc/150?img=68" class="w-10 h-10 rounded-full border-2 border-brand-orange">
-                <a href="login.html" class="text-sm text-red-500 hover:text-red-400">Sortir</a>
+                <a href="login.php" class="text-sm text-red-500 hover:text-red-400">Sortir</a>
             </div>
         </div>
     </nav>

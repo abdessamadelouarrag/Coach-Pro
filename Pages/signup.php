@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button class="w-full py-3 mt-4 bg-brand-orange hover:bg-orange-600 rounded-lg font-bold text-white">S'inscrire</button>
         </form>
         <p class="mt-6 text-center text-sm text-brand-gray">
-            Déjà un compte ? <a href="login.html" class="text-brand-orange hover:underline">Connexion</a>
+            Déjà un compte ? <a href="login.php" class="text-brand-orange hover:underline">Connexion</a>
         </p>
     </div>
 

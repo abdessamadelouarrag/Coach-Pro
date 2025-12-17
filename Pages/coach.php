@@ -8,6 +8,8 @@ $result = mysqli_query($connect, $sql);
 
 $all = mysqli_fetch_all($result, MYSQLI_ASSOC);
 ?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -16,6 +18,7 @@ $all = mysqli_fetch_all($result, MYSQLI_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Coach - CoachPro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -49,7 +52,7 @@ $all = mysqli_fetch_all($result, MYSQLI_ASSOC);
             <span class="text-xl font-bold">COACH<span class="text-brand-orange">PRO</span> <span class="text-xs font-normal text-brand-gray ml-2">| Espace Coach</span></span>
             <div class="flex items-center gap-4">
                 <img src="https://i.pravatar.cc/150?img=11" class="w-10 h-10 rounded-full border-2 border-brand-orange">
-                <a href="login.html" class="text-sm text-red-500 hover:text-red-400">Déconnexion</a>
+                <a href="login.php" class="text-sm text-red-500 hover:text-red-400">Sortir</a>
             </div>
         </div>
     </nav>

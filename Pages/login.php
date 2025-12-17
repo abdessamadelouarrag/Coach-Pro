@@ -1,11 +1,28 @@
 <?php
 include __DIR__ . "/../Config/connect.php";
+session_start();
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST["email"];
+    $password = $_POST["password"];
+
+    $sql = "SELECT * FROM utilisateurs WHERE email = $email";
+
+    $all = mysqli_query($connect, $sql);
+
+    $result = mysqli_fetch_assoc($all);
+
+    if (password_verify($password, $result['mot_de_passe'])) {
+        header("Location: coach.php");
+        exit();
+    }
+}
 
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +31,25 @@ include __DIR__ . "/../Config/connect.php";
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { brand: { orange: '#FF6B00', dark: '#0a0a0a', card: '#121212', gray: '#A1A1AA' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } }
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF6B00',
+                            dark: '#0a0a0a',
+                            card: '#121212',
+                            gray: '#A1A1AA'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
         }
     </script>
 </head>
+
 <body class="bg-brand-dark text-white flex items-center justify-center h-screen">
 
     <div class="w-full max-w-md p-8 bg-brand-card rounded-2xl border border-white/10 shadow-2xl">
@@ -26,21 +58,18 @@ include __DIR__ . "/../Config/connect.php";
             <p class="text-brand-gray text-sm mt-2">Accédez à votre espace personnel</p>
         </div>
 
-        <form action="coach.html" class="space-y-6">
+        <form action="" method="POST" class="space-y-6">
             <div>
                 <label class="block text-sm font-medium text-brand-gray mb-2">Email</label>
-                <input type="email" class="w-full px-4 py-3 bg-brand-dark border border-white/10 rounded-lg focus:outline-none focus:border-brand-orange text-white placeholder-gray-600" placeholder="exemple@mail.com">
+                <input type="email" name="email" class="w-full px-4 py-3 bg-brand-dark border border-white/10 rounded-lg focus:outline-none focus:border-brand-orange text-white placeholder-gray-600" placeholder="exemple@mail.com">
             </div>
             <div>
                 <label class="block text-sm font-medium text-brand-gray mb-2">Mot de passe</label>
-                <input type="password" class="w-full px-4 py-3 bg-brand-dark border border-white/10 rounded-lg focus:outline-none focus:border-brand-orange text-white placeholder-gray-600" placeholder="••••••••">
+                <input type="password" name="password" class="w-full px-4 py-3 bg-brand-dark border border-white/10 rounded-lg focus:outline-none focus:border-brand-orange text-white placeholder-gray-600" placeholder="••••••••">
             </div>
-            
-            <button type="button" onclick="window.location.href='coach.php'" class="w-full py-3 bg-brand-orange hover:bg-orange-600 rounded-lg font-bold text-white transition-colors">
-                Se connecter (Démo Coach)
-            </button>
-            <button type="button" onclick="window.location.href='user.php'" class="w-full py-3 bg-transparent border border-brand-orange text-brand-orange hover:bg-brand-orange/10 rounded-lg font-bold transition-colors">
-                Se connecter (Démo Sportif)
+
+            <button type="button" class="w-full py-3 bg-brand-orange hover:bg-orange-600 rounded-lg font-bold text-white transition-colors">
+                Se connecter
             </button>
         </form>
 
@@ -50,4 +79,5 @@ include __DIR__ . "/../Config/connect.php";
     </div>
 
 </body>
+
 </html>

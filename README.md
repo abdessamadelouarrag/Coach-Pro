@@ -299,8 +299,8 @@ Les contributions sont les bienvenues ! Pour contribuer :
 **Abdessamad Elouarrag**
 
 - GitHub: [@abdessamadelouarrag](https://github.com/abdessamadelouarrag)
-- LinkedIn: [Votre profil LinkedIn](https://linkedin.com/in/votreprofil)
-- Email: votre.email@exemple.com
+- LinkedIn: [Votre profil LinkedIn](https://www.linkedin.com/in/abdessamad-el-ouarrag/)
+- Email: abdessamad4804@gmail.com
 
 ---
 

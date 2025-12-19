@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoachPro - Reserve Your Session</title>
+    <title>CoachPro</title>
     
     <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,9 +60,7 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#home" class="text-gray-300 hover:text-brand-orange transition-colors">Home</a>
-                    <a href="#about" class="text-gray-300 hover:text-brand-orange transition-colors">About</a>
-                    <a href="#pricing" class="text-gray-300 hover:text-brand-orange transition-colors">Pricing</a>
-                </div>
+                    <a href="#about" class="text-gray-300 hover:text-brand-orange transition-colors">About</a>                </div>
 
                 <!-- Auth Buttons -->
                 <div class="flex items-center gap-4">
@@ -95,15 +93,11 @@
                     </p>
                     
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <button class="px-8 py-4 bg-white text-brand-dark font-bold rounded-full hover:bg-gray-200 transition-colors">
-                            Book a Session
-                        </button>
-                        <button class="px-8 py-4 border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
-                            <span>Learn More</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                        </button>
+                        <a href="/Pages/login.php">
+                            <button class="px-8 py-4 bg-white text-brand-dark font-bold rounded-full hover:bg-gray-200 transition-colors">
+                                Book a Session
+                            </button>
+                        </a>
                     </div>
 
                     <!-- Social Proof -->
@@ -181,8 +175,7 @@
                 <span class="text-xl font-bold tracking-tight">COACH<span class="text-brand-orange">PRO</span></span>
             </div>
             <p class="text-brand-gray text-sm mb-6 text-center">
-                © 2023 CoachPro Inc. All rights reserved. <br>
-                Made for performance.
+                © 2025 CoachPro Inc. All rights reserved.
             </p>
             <div class="flex space-x-6">
                 <a href="#" class="text-gray-500 hover:text-white transition-colors">Privacy</a>

@@ -1,9 +1,13 @@
 <?php
 include __DIR__ . "/../Config/connect.php";
+session_start();
 
-$sql = "SELECT utilisateurs.nom, info_coach.specialite, info_coach.id_coach, disponibilite.date from utilisateurs
-        inner join info_coach on utilisateurs.id_user = info_coach.id_coach 
-        inner join disponibilite on disponibilite.id_coach = info_coach.id_coach";
+$nomuser = $_SESSION["nom"];
+
+$sql = "SELECT user.id_user, user.nom, user.specialite, user.image, user.role, disponibilite.id_coach
+        FROM user INNER JOIN disponibilite ON disponibilite.id_coach = user.id_user
+        WHERE user.role = 'Coach'
+        GROUP BY user.id_user, user.nom, user.specialite, user.image, user.role";
 
 $result = mysqli_query($connect, $sql);
 
@@ -26,7 +30,7 @@ foreach($all2 as $dispo){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace Sportif - CoachPro</title>
+    <title>Espace Sportif</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -58,8 +62,8 @@ foreach($all2 as $dispo){
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <span class="text-xl font-bold">COACH<span class="text-brand-orange">PRO</span> <span class="text-xs font-normal text-brand-gray ml-2">| Espace Sportif</span></span>
             <div class="flex items-center gap-4">
-                <span class="text-sm text-brand-gray hidden md:block">Bienvenue, Thomas</span>
-                <img src="https://i.pravatar.cc/150?img=68" class="w-10 h-10 rounded-full border-2 border-brand-orange">
+                <span class="text-sm text-brand-gray hidden md:block">Bienvenue, <?= $nomuser ?></span>
+                <img src="/Public/Images/noprofile.jpeg" class="w-10 h-10 rounded-full border-2 border-brand-orange">
                 <a href="login.php" class="text-sm text-red-500 hover:text-red-400">Sortir</a>
             </div>
         </div>
@@ -70,7 +74,7 @@ foreach($all2 as $dispo){
         <div class="relative w-full h-56 md:h-72 rounded-3xl overflow-hidden shadow-2xl">
             <!-- Image dynamique (Sport/Action) -->
             <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop" 
-                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60">
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60">
             
             <!-- Filtre dégradé Orange vers Noir -->
             <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-brand-dark via-brand-dark/60 to-brand-orange/20"></div>
@@ -117,7 +121,7 @@ foreach($all2 as $dispo){
                                 </td>
                                 <td class="p-4 text-white">24 Oct, 14:00</td>
                                 <td class="p-4">Musculation</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-green-500/10 text-green-500 rounded-full text-xs border border-green-500/20">Confirmé</span></td>
+                                <td class="p-4"><span class="px-2 py-1 bg-green-500/10 text-green-500 rounded-full text-[8px] border border-green-500/20">Confirmé</span></td>
                                 <td class="p-4 text-right">
                                     <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button onclick="openEditModal('Jean Dupont', '2023-10-24', '14:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 transition" title="Modifier">
@@ -138,7 +142,7 @@ foreach($all2 as $dispo){
                                 </td>
                                 <td class="p-4 text-white">28 Oct, 09:00</td>
                                 <td class="p-4">Yoga</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded-full text-xs border border-yellow-500/20">En attente</span></td>
+                                <td class="p-4"><span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded-full text-[7px] border border-yellow-500/20">En attente</span></td>
                                 <td class="p-4 text-right">
                                     <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button onclick="openCancelModal('Maria Lopez', '28 Oct, 09:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
@@ -156,7 +160,7 @@ foreach($all2 as $dispo){
                                 </td>
                                 <td class="p-4">10 Oct, 18:00</td>
                                 <td class="p-4">Crossfit</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-gray-500/20 text-gray-400 rounded-full text-xs border border-gray-500/20">Terminé</span></td>
+                                <td class="p-4"><span class="px-2 py-1 bg-gray-500/20 text-gray-400 rounded-full text-[8px] border border-gray-500/20">Terminé</span></td>
                                 <td class="p-4 text-right text-xs text-brand-gray">
                                     Aucune action
                                 </td>
@@ -171,8 +175,7 @@ foreach($all2 as $dispo){
         <div id="reservation-section">
             <h2 class="text-3xl font-bold flex items-center gap-2 mb-6">
                 <i data-lucide="search" class="text-brand-orange"></i> Réserver une séance
-            </h2>
-        
+            </h2>        
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php
             foreach($all as $row){
@@ -180,19 +183,21 @@ foreach($all2 as $dispo){
                     <!-- COACH CARD 1 -->
                     <div class='bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300'>
                         <div class='flex items-center gap-4 mb-4'>
-                            <img src='https://i.pravatar.cc/150?img=11' class='w-16 h-16 rounded-full border-2 border-brand-orange'>
+                            <img src=" . $row["image"] . " class='w-16 h-16 object-cover rounded-full border-2 border-brand-orange'>
                             <div>
                                 <h3 class='font-bold text-lg'>". $row["nom"] ."</h3>
                                 <p class='text-brand-orange text-sm font-semibold'>". $row["specialite"] ."</p>
                             </div>
                         </div>
                         <div class='border-t border-white/5 pt-4'>
-                            <p class='text-xs font-semibold text-white uppercase mb-3'>Créneaux :</p>
+                        <a href='reservation.php?idcoach=". $row["id_coach"] ."'>
+                            <button class='btn-reserv p-2 bg-orange-600/50 rounded-md hover:bg-orange-600'>Voir les info</button>
+                        </a>
                             <div class='flex flex-wrap gap-2'>";
 
-                            foreach($dispoDeCoach[$row['id_coach']] as $dispo){
-                                echo "<button class='px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition'>". $dispo["date"] ."</button>";
-                            }
+                            // foreach($dispoDeCoach[$row['id_user']] as $dispo){
+                            //     echo "<button class='btn-reserv px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition'>". $dispo["date"] . $dispo["heure_debut"] ."</button>";
+                            // }
                             echo "
                             </div>
                         </div>
@@ -206,24 +211,24 @@ foreach($all2 as $dispo){
 
     <!-- ================= MODALS ================= -->
 
-    <!-- 1. MODAL RESERVATION (Création) -->
+    <!--  MODAL RESERVATION (Création) -->
     <div id="bookingModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAllModals()"></div>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 bg-brand-card border border-white/10 rounded-2xl shadow-2xl">
             <h3 class="text-xl font-bold text-white mb-4">Nouvelle Réservation</h3>
             <div class="bg-brand-surface p-4 rounded-xl border border-white/5 mb-4">
-                <p id="bookCoach" class="font-semibold text-brand-orange">Coach</p>
+                <p id="bookCoach" class="font-semibold text-brand-orange">Coach : <?= $nomuser ?></p>
                 <p id="bookDate" class="text-sm text-white">Date</p>
             </div>
             <textarea class="w-full bg-brand-dark border border-white/10 rounded-lg p-3 text-sm mb-4 h-20" placeholder="Note pour le coach..."></textarea>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="closeAllModals()" class="py-2 border border-white/10 rounded-lg">Annuler</button>
-                <button onclick="confirmAction('booking')" class="py-2 bg-brand-orange rounded-lg font-bold">Confirmer</button>
+                <button class="close-model py-2 border border-white/10 rounded-lg">Annuler</button>
+                <button class="py-2 bg-brand-orange rounded-lg font-bold">Confirmer</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. MODAL MODIFICATION (Bleu/Orange) -->
+    <!-- MODAL MODIFICATION (Bleu/Orange) -->
     <div id="editModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAllModals()"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 bg-brand-card border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
@@ -291,65 +296,9 @@ foreach($all2 as $dispo){
         </div>
     </div>
 
+    <script src="/Public/Js/modelReservation.js"></script>
     <script>
         lucide.createIcons();
-
-        // Elements
-        const bookingModal = document.getElementById('bookingModal');
-        const editModal = document.getElementById('editModal');
-        const cancelModal = document.getElementById('cancelModal');
-
-        // Functions Open
-        function openBookingModal(coach, type, date) {
-            document.getElementById('bookCoach').innerText = coach + ' (' + type + ')';
-            document.getElementById('bookDate').innerText = date;
-            bookingModal.classList.remove('hidden');
-        }
-
-        function openEditModal(coach, date, time) {
-            document.getElementById('editCoachName').innerText = coach;
-            editModal.classList.remove('hidden');
-        }
-
-        function openCancelModal(coach, details) {
-            document.getElementById('cancelDetails').innerText = coach + " - " + details;
-            cancelModal.classList.remove('hidden');
-        }
-
-        function closeAllModals() {
-            bookingModal.classList.add('hidden');
-            editModal.classList.add('hidden');
-            cancelModal.classList.add('hidden');
-        }
-
-        // Logic Confirmation
-        function confirmAction(type) {
-            closeAllModals();
-            
-            if (type === 'booking') {
-                showToast('toastSuccess', 'Votre demande est envoyée au coach.');
-            } else if (type === 'edit') {
-                showToast('toastSuccess', 'La modification a été enregistrée.');
-            } else if (type === 'cancel') {
-                showToast('toastDelete', '');
-                // Simulation: cacher la ligne 1 pour l'effet visuel
-                const row = document.getElementById('row-1');
-                if(row) {
-                    row.style.opacity = '0';
-                    setTimeout(() => row.style.display = 'none', 500);
-                }
-            }
-        }
-
-        function showToast(id, message) {
-            const toast = document.getElementById(id);
-            if(message && id === 'toastSuccess') document.getElementById('toastMessage').innerText = message;
-            
-            toast.classList.remove('translate-y-40', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-40', 'opacity-0');
-            }, 3000);
-        }
     </script>
 </body>
 </html>

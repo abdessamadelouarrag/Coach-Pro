@@ -1,16 +1,17 @@
-<?php 
+<?php
 include __DIR__ . "/../Config/connect.php";
 session_start();
 
 $nomuser = $_SESSION["nom"];
+$iduser = $_SESSION["id_user"];
 
-if(isset($_GET["idcoach"])){
+if (isset($_GET["idcoach"])) {
     $idcoach = $_GET["idcoach"];
     $sqlcoach = "SELECT * FROM user WHERE id_user = '$idcoach'";
 
     $results = mysqli_query($connect, $sqlcoach);
 
-    if($coach = mysqli_fetch_assoc($results)){
+    if ($coach = mysqli_fetch_assoc($results)) {
         $nom = $coach["nom"];
         $specialite = $coach["specialite"];
         $experience = $coach["experience"];
@@ -19,7 +20,16 @@ if(isset($_GET["idcoach"])){
         $bio = $coach["bio"];
     }
 
-    $sqldispo = "SELECT * FROM disponibilite WHERE id_user = '$idcoach'";
+    $sqldispo = "SELECT * FROM disponibilite WHERE id_coach = '$idcoach'";
+    $results = mysqli_query($connect, $sqldispo);
+
+    $all = mysqli_fetch_all($results, MYSQLI_ASSOC);
+}
+
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    $iddispo = $_POST["id_disponibilite"];
+
+    $sqldispo = "INSERT INTO reservation ";
 }
 
 
@@ -27,6 +37,7 @@ if(isset($_GET["idcoach"])){
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,23 +47,26 @@ if(isset($_GET["idcoach"])){
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
-            theme: { 
-                extend: { 
-                    colors: { 
-                        brand: { 
-                            orange: '#FF6B00', 
-                            dark: '#0a0a0a', 
-                            card: '#121212', 
-                            gray: '#A1A1AA', 
-                            surface: '#1E1E1E' 
-                        } 
-                    }, 
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] } 
-                } 
-            } 
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF6B00',
+                            dark: '#0a0a0a',
+                            card: '#121212',
+                            gray: '#A1A1AA',
+                            surface: '#1E1E1E'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
         }
     </script>
 </head>
+
 <body class="bg-brand-dark text-white pb-10">
 
     <!-- Navbar -->
@@ -67,21 +81,21 @@ if(isset($_GET["idcoach"])){
     </nav>
 
     <div class="max-w-6xl mx-auto px-4">
-        
+
         <!-- Back Button -->
         <a href="user.php" class="inline-flex items-center text-brand-gray hover:text-brand-orange mb-6 transition">
             <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Retour aux coachs
         </a>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             <!-- LEFT COLUMN: COACH INFO -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="bg-brand-card border border-white/10 rounded-3xl p-6 text-center">
                     <img src="<?= $image ?>" class="w-32 h-32 rounded-full border-4 border-brand-orange mx-auto mb-4 object-cover">
                     <h1 class="text-2xl font-bold"><?= $nom ?></h1>
                     <p class="text-brand-orange font-medium mb-4"><?= $bio ?></p>
-                    
+
                     <div class="flex justify-center gap-4 py-4 border-t border-white/5">
                         <div class="text-center">
                             <p class="text-xl font-bold">120+</p>
@@ -98,7 +112,7 @@ if(isset($_GET["idcoach"])){
                 <!-- Experience & Certifications -->
                 <div class="bg-brand-card border border-white/10 rounded-3xl p-6">
                     <h3 class="font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="award" class="text-brand-orange w-5 h-5"></i> 
+                        <i data-lucide="award" class="text-brand-orange w-5 h-5"></i>
                         Expertise & Diplômes
                     </h3>
                     <ul class="space-y-4">
@@ -131,63 +145,67 @@ if(isset($_GET["idcoach"])){
             <!-- RIGHT COLUMN: RESERVATION FORM -->
             <div class="lg:col-span-2">
                 <div class="bg-brand-card border border-white/10 rounded-3xl p-8">
-                    <h2 class="text-2xl font-bold mb-2">Réserver votre séance</h2>
-                    <p class="text-brand-gray text-sm mb-8">Choisissez le créneau qui vous convient le mieux pour atteindre vos objectifs.</p>
-
-                    <form action="process_reservation.php" method="POST" class="space-y-6">
-                        <input type="hidden" name="id_coach" value="<?= $id_coach ?>">
-
-                        <!-- Date Selection -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-brand-gray mb-2">Choisir une date</label>
-                                <div class="relative">
-                                    <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-gray"></i>
-                                    <input type="date" required name="date_rdv" class="w-full bg-brand-surface border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:border-brand-orange outline-none transition">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-brand-gray mb-2">Type de séance</label>
-                                <select name="type_session" class="w-full bg-brand-surface border border-white/10 rounded-xl py-3 px-4 focus:border-brand-orange outline-none transition">
-                                    <option>Perte de poids</option>
-                                    <option>Prise de masse</option>
-                                    <option>Remise en forme</option>
-                                    <option>Cardio Training</option>
-                                </select>
-                            </div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="p-2 bg-brand-orange/10 rounded-lg">
+                            <i data-lucide="calendar-days" class="w-6 h-6 text-brand-orange"></i>
                         </div>
+                        <h2 class="text-2xl font-bold">Réserver votre séance</h2>
+                    </div>
+                    <p class="text-brand-gray text-sm mb-8">Sélectionnez un créneau disponible parmi les propositions ci-dessous.</p>
 
-                        <!-- Time Slots (Dynamic from DB) -->
+                    <form action="after.php" method="POST" class="space-y-8">
+                        <input type="hidden" name="id_coach" value="<?= $idcoach ?>">
+
+                        <!-- Date & Time Slot Selection -->
                         <div>
-                            <label class="block text-sm font-medium text-brand-gray mb-3">Créneaux disponibles</label>
-                            <div class="grid grid-cols-3 md:grid-cols-4 gap-3">
-                                <?php if(empty($slots)): ?>
-                                    <p class="text-xs text-red-400 col-span-full">Aucun créneau configuré pour le moment.</p>
-                                <?php else: ?>
-                                    <?php foreach($slots as $slot): ?>
+                            <label class="block text-sm font-medium text-brand-gray mb-4 uppercase tracking-wider">Créneaux Disponibles</label>
+                                <!-- Grid of Slots -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    <?php foreach ($all as $dispo): ?>
                                         <label class="relative cursor-pointer group">
-                                            <input type="radio" name="id_dispo" value="<?= $slot['id_dispo'] ?>" class="peer sr-only" required>
-                                            <div class="text-center p-3 bg-brand-surface border border-white/5 rounded-xl peer-checked:border-brand-orange peer-checked:bg-brand-orange/10 group-hover:border-white/20 transition">
-                                                <span class="block text-sm font-bold"><?= $slot['heure_debut'] ?></span>
-                                                <span class="block text-[10px] text-brand-gray"><?= $slot['date'] ?></span>
+
+                                            <input type="radio" name="id_disponibilite" value="<?= $dispo['id_disponibilite'] ?>" class="peer sr-only" required>
+
+                                            <!-- Styled Card -->
+                                            <div class="h-full bg-brand-surface border border-white/10 rounded-2xl p-4 transition-all duration-200 
+                                            peer-checked:border-brand-orange peer-checked:bg-brand-orange/5 peer-checked:ring-1 peer-checked:ring-brand-orange
+                                            group-hover:border-white/30">
+
+                                                <div class="flex justify-between items-start mb-2">
+                                                    <span class="text-[10px] font-bold uppercase py-1 px-2 bg-white/5 rounded text-brand-gray">Session</span>
+                                                    <!-- Checkmark icon that appears when selected -->
+                                                    <div class="opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                        <i data-lucide="check-circle-2" class="w-5 h-5 text-brand-orange"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-white font-semibold flex items-center gap-2 mb-1">
+                                                    <i data-lucide="calendar" class="w-4 h-4 text-brand-orange"></i>
+                                                    <?= $dispo["date"] ?>
+                                                </div>
+
+                                                <div class="text-brand-gray text-sm flex items-center gap-2">
+                                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                                    <?= $dispo["heure_debut"] ?> - <?= $dispo["heure_fin"] ?>
+                                                </div>
                                             </div>
                                         </label>
                                     <?php endforeach; ?>
-                                <?php endif; ?>
-                            </div>
+                                </div>
                         </div>
 
-                        <!-- Message -->
+                        <!-- Message Area -->
                         <div>
-                            <label class="block text-sm font-medium text-brand-gray mb-2">Message ou objectif spécifique (Optionnel)</label>
-                            <textarea name="notes" rows="4" placeholder="Ex: Je souhaite me concentrer sur le bas du corps..." class="w-full bg-brand-surface border border-white/10 rounded-xl p-4 focus:border-brand-orange outline-none transition"></textarea>
+                            <label class="block text-sm font-medium text-brand-gray mb-2 uppercase tracking-wider">Message ou objectif (Optionnel)</label>
+                            <textarea name="notes" rows="4"
+                                placeholder="Ex: Je souhaite me concentrer sur le cardio et la perte de poids..."
+                                class="w-full bg-brand-surface border border-white/10 rounded-2xl p-4 focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none transition duration-200 text-sm"></textarea>
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-orange/20 transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i>
-                            Confirmer la réservation
+                        <button type="submit" class="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-brand-orange/20 transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                            Confirmer la séance avec <?= $nom ?>
                         </button>
                     </form>
                 </div>
@@ -199,4 +217,5 @@ if(isset($_GET["idcoach"])){
         lucide.createIcons();
     </script>
 </body>
+
 </html>

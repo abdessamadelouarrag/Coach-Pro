@@ -193,12 +193,7 @@ foreach($all2 as $dispo){
                         <a href='reservation.php?idcoach=". $row["id_coach"] ."'>
                             <button class='btn-reserv p-2 bg-orange-600/50 rounded-md hover:bg-orange-600'>Voir les info</button>
                         </a>
-                            <div class='flex flex-wrap gap-2'>";
-
-                            // foreach($dispoDeCoach[$row['id_user']] as $dispo){
-                            //     echo "<button class='btn-reserv px-3 py-2 bg-brand-surface border border-white/20 text-xs rounded hover:bg-brand-orange transition'>". $dispo["date"] . $dispo["heure_debut"] ."</button>";
-                            // }
-                            echo "
+                            <div class='flex flex-wrap gap-2'>
                             </div>
                         </div>
                     </div>";

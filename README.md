@@ -310,24 +310,6 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ---
 
-## 🙏 Remerciements
-
-- Merci à tous les contributeurs qui ont participé à ce projet
-- Inspiration des meilleures pratiques de développement web
-- Communauté open source pour les outils et bibliothèques utilisés
-
----
-
-## 📞 Support
-
-Pour toute question ou problème :
-
-- 🐛 [Ouvrir une issue](https://github.com/abdessamadelouarrag/Coach-Pro/issues)
-- 💬 [Discussions](https://github.com/abdessamadelouarrag/Coach-Pro/discussions)
-- 📧 Contact direct via email
-
----
-
 <div align="center">
 
 **⭐ Si ce projet vous a été utile, n'hésitez pas à lui donner une étoile ! ⭐**

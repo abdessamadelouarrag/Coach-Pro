@@ -2,17 +2,18 @@
 include __DIR__ . "/../Config/connect.php";
 session_start();
 
-if (!isset($_SESSION["id_user"]) ) {
+if (!isset($_SESSION["id_user"])) {
     header("Location: login.php");
     exit();
 }
 
-if($_SESSION["role"] !== "Sportif"){
+if ($_SESSION["role"] !== "Sportif") {
     header("Location: coach.php");
     exit();
 }
 
 $nomuser = $_SESSION["nom"];
+$iduser = $_SESSION["id_user"];
 
 $sql = "SELECT user.id_user, user.nom, user.specialite, user.image, user.role, disponibilite.id_coach
         FROM user INNER JOIN disponibilite ON disponibilite.id_coach = user.id_user
@@ -29,14 +30,22 @@ $all2 = mysqli_fetch_all($result2, MYSQLI_ASSOC);
 
 $dispoDeCoach = [];
 
-foreach($all2 as $dispo){
+foreach ($all2 as $dispo) {
     $dispoDeCoach[$dispo['id_coach']][] = $dispo;
 }
+
+$sqlres = "SELECT user.nom, user.image, user.specialite, reservation.date_reservation, reservation.heure_debut, reservation.heure_fin, reservation.id_sportif, reservation.status 
+            from user inner join reservation on user.id_user = reservation.id_coach WHERE id_sportif = '$iduser'";
+
+$resultres = mysqli_query($connect, $sqlres);
+
+$allres = mysqli_fetch_all($resultres, MYSQLI_ASSOC);
 ?>
 
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,25 +55,26 @@ foreach($all2 as $dispo){
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
-            theme: { 
-                extend: { 
-                    colors: { 
-                        brand: { 
-                            orange: '#FF6B00', 
-                            dark: '#0a0a0a', 
-                            card: '#121212', 
-                            gray: '#A1A1AA', 
-                            surface: '#1E1E1E' 
-                        } 
-                    }, 
-                    fontFamily: { 
-                        sans: ['Poppins', 'sans-serif'] 
-                    } 
-                } 
-            } 
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF6B00',
+                            dark: '#0a0a0a',
+                            card: '#121212',
+                            gray: '#A1A1AA',
+                            surface: '#1E1E1E'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
         }
     </script>
 </head>
+
 <body class="bg-brand-dark text-white pb-10 relative">
 
     <!-- Navbar -->
@@ -83,9 +93,9 @@ foreach($all2 as $dispo){
     <div class="m-4 md:m-10 relative group">
         <div class="relative w-full h-56 md:h-72 rounded-3xl overflow-hidden shadow-2xl">
             <!-- Image dynamique (Sport/Action) -->
-            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop" 
+            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop"
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60">
-            
+
             <!-- Filtre dégradé Orange vers Noir -->
             <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-brand-dark via-brand-dark/60 to-brand-orange/20"></div>
 
@@ -105,7 +115,7 @@ foreach($all2 as $dispo){
     </div>
 
     <div class="max-w-7xl mx-auto px-4">
-        
+
         <!-- SECTION 1: Historique & Gestion Réservations -->
         <div class="mb-12">
             <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -123,59 +133,33 @@ foreach($all2 as $dispo){
                                 <th class="p-4 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-white/5 text-sm" id="reservationTable">
-                            <tr class="hover:bg-brand-surface/50 transition group" id="row-1">
-                                <td class="p-4 font-semibold flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/150?img=11" class="w-8 h-8 rounded-full">
-                                    Jean Dupont
-                                </td>
-                                <td class="p-4 text-white">24 Oct, 14:00</td>
-                                <td class="p-4">Musculation</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-green-500/10 text-green-500 rounded-full text-[8px] border border-green-500/20">Confirmé</span></td>
-                                <td class="p-4 text-right">
-                                    <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onclick="openEditModal('Jean Dupont', '2023-10-24', '14:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 transition" title="Modifier">
-                                            <i data-lucide="pencil" class="w-4 h-4"></i>
-                                        </button>
-                                        <button onclick="openCancelModal('Jean Dupont', '24 Oct, 14:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- Ligne 2 : En attente (Annulable uniquement) -->
-                            <tr class="hover:bg-brand-surface/50 transition group" id="row-2">
-                                <td class="p-4 font-semibold flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/150?img=5" class="w-8 h-8 rounded-full">
-                                    Maria Lopez
-                                </td>
-                                <td class="p-4 text-white">28 Oct, 09:00</td>
-                                <td class="p-4">Yoga</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded-full text-[7px] border border-yellow-500/20">En attente</span></td>
-                                <td class="p-4 text-right">
-                                    <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onclick="openCancelModal('Maria Lopez', '28 Oct, 09:00')" class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- Ligne 3 : Terminée (Aucune action) -->
-                            <tr class="bg-brand-surface/20 opacity-60">
-                                <td class="p-4 font-semibold flex items-center gap-3">
-                                    <img src="https://i.pravatar.cc/150?img=60" class="w-8 h-8 rounded-full grayscale">
-                                    Marc Steel
-                                </td>
-                                <td class="p-4">10 Oct, 18:00</td>
-                                <td class="p-4">Crossfit</td>
-                                <td class="p-4"><span class="px-2 py-1 bg-gray-500/20 text-gray-400 rounded-full text-[8px] border border-gray-500/20">Terminé</span></td>
-                                <td class="p-4 text-right text-xs text-brand-gray">
-                                    Aucune action
-                                </td>
-                            </tr>
-                        </tbody>
+                        <?php foreach ($allres as $row): ?>
+                            <tbody class="divide-y divide-white/5 text-sm" id="reservationTable">
+                                <tr class="hover:bg-brand-surface/50 transition group" id="row-1">
+                                    <td class="p-4 font-semibold flex items-center gap-3">
+                                        <img src="<?= $row["image"] ?>" class="w-8 h-8 rounded-full object-cover">
+                                        <?= $row["nom"] ?>
+                                    </td>
+                                    <td class="p-4 text-white"><?= $row["date_reservation"] ?></td>
+                                    <td class="p-4"><?= $row["specialite"] ?></td>
+                                    <td class="p-4">
+                                        <span class="text-xs px-2 py-1 rounded 
+                                        <?= $row['status'] == 'accepted' ? 'bg-green-500/20 text-green-500' : ($row['status'] == 'refused' ? 'bg-red-500/20 text-red-500' : 'bg-yellow-500/20 text-yellow-400') ?>">
+                                            <?= htmlspecialchars($row["status"]) ?>
+                                        </span>
+                                    <td class="p-4 text-right">
+                                        <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 transition" title="Modifier">
+                                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                                            </button>
+                                            <button class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -185,30 +169,30 @@ foreach($all2 as $dispo){
         <div id="reservation-section">
             <h2 class="text-3xl font-bold flex items-center gap-2 mb-6">
                 <i data-lucide="search" class="text-brand-orange"></i> Réserver une séance
-            </h2>        
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <?php
-            foreach($all as $row){
-                echo "
+                <?php
+                foreach ($all as $row) {
+                    echo "
                     <!-- COACH CARD 1 -->
                     <div class='bg-brand-card border border-white/10 rounded-2xl p-6 hover:border-brand-orange/50 transition duration-300'>
                         <div class='flex items-center gap-4 mb-4'>
                             <img src=" . $row["image"] . " class='w-16 h-16 object-cover rounded-full border-2 border-brand-orange'>
                             <div>
-                                <h3 class='font-bold text-lg'>". $row["nom"] ."</h3>
-                                <p class='text-brand-orange text-sm font-semibold'>". $row["specialite"] ."</p>
+                                <h3 class='font-bold text-lg'>" . $row["nom"] . "</h3>
+                                <p class='text-brand-orange text-sm font-semibold'>" . $row["specialite"] . "</p>
                             </div>
                         </div>
                         <div class='border-t border-white/5 pt-4'>
-                        <a href='reservation.php?idcoach=". $row["id_coach"] ."'>
+                        <a href='reservation.php?idcoach=" . $row["id_coach"] . "'>
                             <button class='btn-reserv p-2 bg-orange-600/50 rounded-md hover:bg-orange-600'>Voir les info</button>
                         </a>
                             <div class='flex flex-wrap gap-2'>
                             </div>
                         </div>
                     </div>";
-            }
-            ?>
+                }
+                ?>
             </div>
         </div>
 
@@ -241,7 +225,7 @@ foreach($all2 as $dispo){
                 <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
                 <h3 class="text-xl font-bold text-white">Modifier la séance</h3>
             </div>
-            
+
             <p class="text-sm text-brand-gray mb-4">Avec <span id="editCoachName" class="text-white font-semibold">Coach</span></p>
 
             <div class="space-y-4 mb-6">
@@ -306,4 +290,5 @@ foreach($all2 as $dispo){
         lucide.createIcons();
     </script>
 </body>
+
 </html>

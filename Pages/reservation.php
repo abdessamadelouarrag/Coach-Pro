@@ -20,21 +20,52 @@ if (isset($_GET["idcoach"])) {
         $bio = $coach["bio"];
     }
 
-    $sqldispo = "SELECT * FROM disponibilite WHERE id_coach = '$idcoach'";
+    $sqldispo = "SELECT * FROM disponibilite WHERE id_coach = '$idcoach' AND status = 'libre'";
     $results = mysqli_query($connect, $sqldispo);
 
     $all = mysqli_fetch_all($results, MYSQLI_ASSOC);
 }
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-    $iddispo = $_POST["id_disponibilite"];
-    $id_coach = $_POST['id_coach'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $sql = "SELECT date, heure_debut, heure_fin 
-            FROM disponibilite WHERE id_disponibilite = '$iddispo'";
-    echo "$sql";
-        
+    if (!isset($_SESSION["id_user"])) {
+        header("Location: login.php");
+        exit();
+    }
+
+    $id_sportif = $_SESSION["id_user"];
+    $id_coach = $_POST["id_coach"];
+    $id_dispo = $_POST["id_disponibilite"];
+
+    $sqlDispo = "SELECT date, heure_debut, heure_fin 
+                FROM disponibilite 
+                WHERE id_disponibilite = '$id_dispo' 
+                AND id_coach = '$id_coach'";
+
+    $resDispo = mysqli_query($connect, $sqlDispo);
+
+    if (mysqli_num_rows($resDispo) !== 1) {
+        die("Créneau non valide");
+    }
+
+    $dispo = mysqli_fetch_assoc($resDispo);
+
+    $sqlInsert = "INSERT INTO reservation 
+        (date_reservation, id_sportif, id_coach, id_disponibilite, heure_debut, heure_fin)
+        VALUES 
+        ('{$dispo['date']}', '$id_sportif', '$id_coach', '$id_dispo', '{$dispo['heure_debut']}', '{$dispo['heure_fin']}')";
+
+    if (mysqli_query($connect, $sqlInsert)) {
+
+        $sqlupdate = "UPDATE disponibilite SET status = 'reserve' WHERE id_disponibilite = '$id_dispo'";
+        mysqli_query($connect, $sqlupdate);
+
+        header("Location: user.php?reservation=success");
+        exit();
+    }
 }
+
+
 
 
 ?>
@@ -157,7 +188,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     </div>
                     <p class="text-brand-gray text-sm mb-8">Sélectionnez un créneau disponible parmi les propositions ci-dessous.</p>
 
-                    <form action="after.php" method="POST" class="space-y-8">
+                    <form action="" method="POST" class="space-y-8">
                         <input type="hidden" name="id_coach" value="<?= $idcoach ?>">
 
                         <!-- Date & Time Slot Selection -->

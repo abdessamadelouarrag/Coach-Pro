@@ -2,87 +2,107 @@
 session_start();
 include __DIR__ . "/../Config/connect.php";
 
+// verification session
 if (!isset($_SESSION["id_user"])) {
     header("Location: login.php");
     exit();
 }
 
-if($_SESSION["role"] !== "Coach"){
+// verification role
+if ($_SESSION["role"] !== "Coach") {
     header("Location: user.php");
     exit();
 }
 
-$nomuser = $_SESSION["nom"];
 $iduser = $_SESSION["id_user"];
+$nomuser = $_SESSION["nom"];
 
+// recuparation profil coach
 $sql = "SELECT * FROM user WHERE id_user = '$iduser'";
 $result = mysqli_query($connect, $sql);
+$user = mysqli_fetch_assoc($result);
 
-if ($user = mysqli_fetch_assoc($result)) {
-    $nom = $user["nom"];
-    $specialite = $user["specialite"];
-    $experiences = $user["experience"];
-    $certification = $user["certifications"];
-    $bio = $user["bio"];
-    $urlimage = $user["image"];
+$nom = $user['nom'];
+$specialite = $user['specialite'];
+$experiences = $user['experience'];
+$certification = $user['certifications'];
+$bio = $user['bio'];
+$urlimage = $user['image'];
+
+// ajouter une disponibilite
+if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["form"] === "dispo") {
+    $date = $_POST["date"];
+    $heure_debut = $_POST["heure_debut"];
+    $heure_fin = $_POST["heure_fin"];
+
+    $sqlinsert = "INSERT INTO disponibilite (id_coach, date, heure_debut, heure_fin) VALUES ('$iduser', '$date', '$heure_debut', '$heure_fin')";
+
+    mysqli_query($connect, $sqlinsert);
+    header("Location: coach.php?dispo-added");
+    exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if ($_POST["form"] == "dispo") {
-        $datereservation = $_POST["date"];
-        $heuredebut = $_POST["heure_debut"];
-        $heurefin = $_POST["heure_fin"];
+// modifier profil
+if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["form"] === "edit-form") {
+    $newimage = $_POST["url_image"];
+    $newspecialite = $_POST["specialite"];
+    $newexperiences = $_POST["experiences"];
+    $newcertification = $_POST["certification"];
+    $newbio = $_POST["bio"];
 
-        $sqlres = "INSERT INTO disponibilite (date, heure_debut, heure_fin, id_coach) VALUES ('$datereservation', '$heuredebut', '$heurefin', '$iduser')";
-
-        if (mysqli_query($connect, $sqlres)) {
-            header("Location: coach.php?Dispo");
-            exit();
-        }
-    }
-
-    //part edit profil
-    if ($_POST["form"] == "edit-form") {
-        $newimage = $_POST["url_image"];
-        $newspecialite = $_POST["specialite"];
-        $newexperiences = $_POST["experiences"];
-        $newcertification = $_POST["certification"];
-        $newbio = $_POST["bio"];
-
-        $sqledit = "UPDATE user SET specialite = '$newspecialite', experience = '$newexperiences', certifications = '$newcertification', bio = '$newbio', image = '$newimage' WHERE id_user = '$iduser'";
-
-        if (mysqli_query($connect, $sqledit)) {
-            header("Location: coach.php?edit-profile");
-            exit();
-        }
-    }
+    $sqledit = "UPDATE user SET image = '$newimage',specialite = '$newspecialite',experience = '$newexperiences',certifications = '$newcertification',bio = '$newbio' WHERE id_user = '$iduser'";
+    mysqli_query($connect, $sqledit);
+    header("Location: coach.php?edit-profile");
+    exit();
 }
 
-$sqlshowdispo = "SELECT * FROM disponibilite WHERE id_coach = '$iduser'";
+// supprimer disponibilite
+if (isset($_GET['delet'])) {
+    $id_dispo = $_GET['delet'];
 
+    $sql_res = "DELETE FROM reservation WHERE id_disponibilite = '$id_dispo'";
+    mysqli_query($connect, $sql_res);
+
+    $sqldelete = "DELETE FROM disponibilite WHERE id_disponibilite = '$id_dispo'";
+    mysqli_query($connect, $sqldelete);
+    header("Location: coach.php?delete-success");
+    exit();
+}
+
+// recuperer disponibilites
+$sqlshowdispo = "SELECT * FROM disponibilite WHERE id_coach = '$iduser' ORDER BY date ASC, heure_debut ASC";
 $resultshow = mysqli_query($connect, $sqlshowdispo);
-
 $allshow = mysqli_fetch_all($resultshow, MYSQLI_ASSOC);
 
-//part delet disponibilite 
+// recuperer demandes reservation
+$sqlreserv = "SELECT r.id_reservation, r.date_reservation, r.heure_debut, r.heure_fin, r.status, u.nom AS nom_sportif
+            FROM reservation r
+            INNER JOIN user u ON r.id_sportif = u.id_user
+            WHERE r.id_coach = '$iduser'
+            ORDER BY r.date_reservation DESC, r.heure_debut DESC";
 
-if (isset($_GET['delet'])) {
-    $deletdispo = $_GET['delet'];
-    $sqldelete = "DELETE FROM disponibilite WHERE id_disponibilite = '$deletdispo'";
+$resultreserv = mysqli_query($connect, $sqlreserv);
+$allreserv = mysqli_fetch_all($resultreserv, MYSQLI_ASSOC);
 
-    if (mysqli_query($connect, $sqldelete)) {
-        header("Location: coach.php?succes-delete");
-        exit();
-    }
+//part accepter reserv
+
+if(isset($_GET['accepter'])){
+    $idreserv = $_GET['accepter'];
+
+    $sqlaccept = "UPDATE reservation SET status = 'accepted' WHERE id_reservation = '$idreserv'";
+
+    $resultaccept = mysqli_query($connect, $sqlaccept);
+
 }
 
+if(isset($_GET['refuser'])){
+    $idreserv = $_GET['refuser'];
 
-$sqlres = "SELECT * FROM reservation WHERE id_sportif = '$iduser'";
-
-$resultres = mysqli_query($connect, $sqlres);
-
-$all = mysqli_fetch_all($resultres);
+    $sqlrefu = "UPDATE reservation SET status = 'refused' WHERE id_reservation = '$idreserv'";
+    $resultaccept = mysqli_query($connect, $sqlrefu);
+}
 ?>
+
 
 
 <!DOCTYPE html>
@@ -94,6 +114,7 @@ $all = mysqli_fetch_all($resultres);
     <title>Espace Coach</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/Public/Css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -164,7 +185,7 @@ $all = mysqli_fetch_all($resultres);
             <div class="bg-brand-card p-6 rounded-2xl border border-white/10">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold border-l-4 border-brand-orange pl-3">Mon Profil</h3>
-                    <button onclick="toggleModal()" class="flex items-center gap-2 text-xs bg-brand-surface px-3 py-1.5 rounded-lg border border-white/10 hover:border-brand-orange transition-all">
+                    <button class="flex items-center gap-2 text-xs bg-brand-surface px-3 py-1.5 rounded-lg border border-white/10 hover:border-brand-orange transition-all">
                         <i data-lucide="edit-3" class="w-3 h-3 text-brand-orange"></i> Modifier
                     </button>
                 </div>
@@ -199,7 +220,7 @@ $all = mysqli_fetch_all($resultres);
                 <h3 class="text-lg font-bold mb-4 border-l-4 border-brand-orange pl-3">Statistiques</h3>
                 <div class="grid grid-cols-2 gap-4 text-center">
                     <div class="bg-brand-surface p-4 rounded-xl">
-                        <p class="text-3xl font-bold text-brand-orange">142</p>
+                        <p class="text-3xl font-bold text-brand-orange"><?= count($allshow) ?></p>
                         <p class="text-xs text-brand-gray">Séances Données</p>
                     </div>
                     <div class="bg-brand-surface p-4 rounded-xl">
@@ -215,36 +236,39 @@ $all = mysqli_fetch_all($resultres);
                     <span class="border-l-4 border-brand-orange pl-3">Demandes de Réservation</span>
                     <span class="bg-brand-orange/20 text-brand-orange text-xs px-2 py-1 rounded">En attente</span>
                 </h3>
-
-                <?php if (empty($all)): ?>
-                    <p class="text-brand-gray text-sm italic">Aucune réservation pour le moment.</p>
-                <?php endif; ?>
-
-                <?php foreach ($all as $row): ?>
-                    <div class='flex items-center justify-between bg-brand-surface p-4 rounded-xl border border-white/5 mb-4'>
-                        <div class='flex items-center gap-3'>
-                            <div class="bg-brand-orange/10 p-2 rounded-lg text-brand-orange">
-                                <i data-lucide="user" class="w-5 h-5"></i>
+                <div class="bg-brand-card p-1 rounded-2xl border border-white/10 w-full h-72 overflow-auto scrollbar-res">
+    
+                    <?php foreach ($allreserv as $row): ?>
+                        <div class="flex items-center justify-between bg-brand-surface p-4 rounded-xl border border-white/5 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-brand-orange/10 p-2 rounded-lg text-brand-orange">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm text-white"><?= htmlspecialchars($row["nom_sportif"]) ?></p>
+                                    <p class="text-[8px] md:text-xs text-brand-gray"><?= $row["date_reservation"] ?> | <?= $row["heure_debut"] ?> - <?= $row["heure_fin"] ?></p>
+                                </div>
                             </div>
-                            <div>
-                                <!-- Display Style: Nom -->
-                                <p class='font-semibold text-sm text-white'><?= htmlspecialchars($row["nom"]) ?></p>
-                                <!-- Display Style: Date Heure_debut - Heure_fin -->
-                                <p class='text-xs text-brand-gray'>
-                                    <?= $row["date"] ?> | <?= $row["heure_debut"] ?> - <?= $row["heure_fin"] ?>
-                                </p>
+                            <div class="flex gap-2">
+                                <span class="text-[8px] md:text-xs px-2 py-1 rounded 
+                                <?= $row['status'] == 'accepted' ? 'bg-green-500/20 text-green-500' : ($row['status'] == 'refused' ? 'bg-red-500/20 text-red-500' : 'bg-yellow-500/20 text-yellow-400') ?>">
+                                    <?= htmlspecialchars($row["status"]) ?>
+                                </span>
+                                <a href="coach.php?accepter=<?= $row["id_reservation"] ?>">
+                                    <button class="p-2 bg-green-500/20 text-green-500 rounded hover:bg-green-500 hover:text-white transition">
+                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                    </button>
+                                </a>
+                                <a href="coach.php?refuser=<?= $row["id_reservation"] ?>">
+                                    <button class="p-2 bg-red-500/20 text-red-500 rounded hover:bg-red-500 hover:text-white transition">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </a>
                             </div>
                         </div>
-                        <div class='flex gap-2'>
-                            <button class='p-2 bg-green-500/20 text-green-500 rounded hover:bg-green-500 hover:text-white transition'>
-                                <i data-lucide='check' class='w-4 h-4'></i>
-                            </button>
-                            <button class='p-2 bg-red-500/20 text-red-500 rounded hover:bg-red-500 hover:text-white transition'>
-                                <i data-lucide='x' class='w-4 h-4'></i>
-                            </button>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+    
+                </div>
             </div>
         </div>
     </div>
@@ -254,7 +278,7 @@ $all = mysqli_fetch_all($resultres);
         <div class="bg-brand-card w-full max-w-lg rounded-2xl border border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div class="p-6 border-b border-white/10 flex justify-between items-center">
                 <h3 class="text-xl font-bold">Modifier mon profil</h3>
-                <button onclick="toggleModal()" class="text-brand-gray hover:text-white"><i data-lucide="x"></i></button>
+                <button class="text-brand-gray hover:text-white"><i data-lucide="x"></i></button>
             </div>
 
             <form class="p-6 space-y-4" method="POST">
@@ -283,7 +307,7 @@ $all = mysqli_fetch_all($resultres);
                 </div>
 
                 <div class="flex gap-3 pt-4">
-                    <button type="button" onclick="toggleModal()" class="flex-1 py-3 bg-brand-surface text-white text-sm rounded-lg hover:bg-white/5 transition-colors">Annuler</button>
+                    <button type="button"   class="flex-1 py-3 bg-brand-surface text-white text-sm rounded-lg hover:bg-white/5 transition-colors">Annuler</button>
                     <button type="submit" name="submit" class="flex-1 py-3 bg-brand-orange text-white text-sm font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-brand-orange/20">Enregistrer</button>
                 </div>
             </form>
@@ -373,20 +397,6 @@ $all = mysqli_fetch_all($resultres);
     <script src="/Public/Js/alertDelete.js"></script>
     <script>
         lucide.createIcons();
-
-        function toggleModal() {
-            const modal = document.getElementById('editModal');
-            modal.classList.toggle('hidden');
-            modal.classList.toggle('modal-active');
-        }
-
-        // Close modal if clicking outside the box
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target == modal) {
-                toggleModal();
-            }
-        }
     </script>
 </body>
 

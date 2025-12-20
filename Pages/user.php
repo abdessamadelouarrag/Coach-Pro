@@ -2,6 +2,16 @@
 include __DIR__ . "/../Config/connect.php";
 session_start();
 
+if (!isset($_SESSION["id_user"]) ) {
+    header("Location: login.php");
+    exit();
+}
+
+if($_SESSION["role"] !== "Sportif"){
+    header("Location: coach.php");
+    exit();
+}
+
 $nomuser = $_SESSION["nom"];
 
 $sql = "SELECT user.id_user, user.nom, user.specialite, user.image, user.role, disponibilite.id_coach

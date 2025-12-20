@@ -1,12 +1,21 @@
 <?php
-include __DIR__ . "/../Config/connect.php";
 session_start();
+include __DIR__ . "/../Config/connect.php";
+
+if (!isset($_SESSION["id_user"])) {
+    header("Location: login.php");
+    exit();
+}
+
+if($_SESSION["role"] !== "Coach"){
+    header("Location: user.php");
+    exit();
+}
 
 $nomuser = $_SESSION["nom"];
 $iduser = $_SESSION["id_user"];
 
 $sql = "SELECT * FROM user WHERE id_user = '$iduser'";
-
 $result = mysqli_query($connect, $sql);
 
 if ($user = mysqli_fetch_assoc($result)) {
@@ -18,22 +27,22 @@ if ($user = mysqli_fetch_assoc($result)) {
     $urlimage = $user["image"];
 }
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-    if($_POST["form"] == "dispo"){
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if ($_POST["form"] == "dispo") {
         $datereservation = $_POST["date"];
         $heuredebut = $_POST["heure_debut"];
         $heurefin = $_POST["heure_fin"];
-    
+
         $sqlres = "INSERT INTO disponibilite (date, heure_debut, heure_fin, id_coach) VALUES ('$datereservation', '$heuredebut', '$heurefin', '$iduser')";
-    
-        if(mysqli_query($connect, $sqlres)){
+
+        if (mysqli_query($connect, $sqlres)) {
             header("Location: coach.php?Dispo");
             exit();
         }
     }
 
     //part edit profil
-    if($_POST["form"] == "edit-form"){
+    if ($_POST["form"] == "edit-form") {
         $newimage = $_POST["url_image"];
         $newspecialite = $_POST["specialite"];
         $newexperiences = $_POST["experiences"];
@@ -42,12 +51,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         $sqledit = "UPDATE user SET specialite = '$newspecialite', experience = '$newexperiences', certifications = '$newcertification', bio = '$newbio', image = '$newimage' WHERE id_user = '$iduser'";
 
-        if(mysqli_query($connect, $sqledit)){
+        if (mysqli_query($connect, $sqledit)) {
             header("Location: coach.php?edit-profile");
             exit();
         }
     }
-
 }
 
 $sqlshowdispo = "SELECT * FROM disponibilite WHERE id_coach = '$iduser'";
@@ -58,11 +66,11 @@ $allshow = mysqli_fetch_all($resultshow, MYSQLI_ASSOC);
 
 //part delet disponibilite 
 
-if(isset($_GET['delet'])){
+if (isset($_GET['delet'])) {
     $deletdispo = $_GET['delet'];
     $sqldelete = "DELETE FROM disponibilite WHERE id_disponibilite = '$deletdispo'";
 
-    if(mysqli_query($connect, $sqldelete)){
+    if (mysqli_query($connect, $sqldelete)) {
         header("Location: coach.php?succes-delete");
         exit();
     }
@@ -207,18 +215,33 @@ $all = mysqli_fetch_all($resultres);
                     <span class="border-l-4 border-brand-orange pl-3">Demandes de Réservation</span>
                     <span class="bg-brand-orange/20 text-brand-orange text-xs px-2 py-1 rounded">En attente</span>
                 </h3>
+
+                <?php if (empty($all)): ?>
+                    <p class="text-brand-gray text-sm italic">Aucune réservation pour le moment.</p>
+                <?php endif; ?>
+
                 <?php foreach ($all as $row): ?>
                     <div class='flex items-center justify-between bg-brand-surface p-4 rounded-xl border border-white/5 mb-4'>
                         <div class='flex items-center gap-3'>
-                            <img src='https://i.pravatar.cc/150?img=2' class='w-10 h-10 rounded-full'>
+                            <div class="bg-brand-orange/10 p-2 rounded-lg text-brand-orange">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </div>
                             <div>
-                                <p class='font-semibold text-sm'><?= $row["nom"] ?></p>
-                                <p class='text-xs text-brand-gray'><?= $row["date_reservation"] ?></p>
+                                <!-- Display Style: Nom -->
+                                <p class='font-semibold text-sm text-white'><?= htmlspecialchars($row["nom"]) ?></p>
+                                <!-- Display Style: Date Heure_debut - Heure_fin -->
+                                <p class='text-xs text-brand-gray'>
+                                    <?= $row["date"] ?> | <?= $row["heure_debut"] ?> - <?= $row["heure_fin"] ?>
+                                </p>
                             </div>
                         </div>
                         <div class='flex gap-2'>
-                            <button class='p-2 bg-green-500/20 text-green-500 rounded hover:bg-green-500 hover:text-white transition'><i data-lucide='check' class='w-4 h-4'></i></button>
-                            <button class='p-2 bg-red-500/20 text-red-500 rounded hover:bg-red-500 hover:text-white transition'><i data-lucide='x' class='w-4 h-4'></i></button>
+                            <button class='p-2 bg-green-500/20 text-green-500 rounded hover:bg-green-500 hover:text-white transition'>
+                                <i data-lucide='check' class='w-4 h-4'></i>
+                            </button>
+                            <button class='p-2 bg-red-500/20 text-red-500 rounded hover:bg-red-500 hover:text-white transition'>
+                                <i data-lucide='x' class='w-4 h-4'></i>
+                            </button>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -321,21 +344,21 @@ $all = mysqli_fetch_all($resultres);
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <!-- créneau -->
                 <?php
-                foreach($allshow as $row){
-                    echo"
+                foreach ($allshow as $row) {
+                    echo "
                         <div class='flex items-center justify-between bg-brand-surface p-4 rounded-xl border border-white/5 group hover:border-brand-orange/50 transition-all'>
                             <div class='flex items-center gap-4'>
                                 <div class='bg-brand-orange/10 p-2 rounded-lg text-brand-orange'>
                                     <i data-lucide='calendar-check' class='w-5 h-5'></i>
                                 </div>
                                 <div>
-                                    <p class='text-sm font-bold'>". $row['date'] ."</p>
+                                    <p class='text-sm font-bold'>" . $row['date'] . "</p>
                                     <p class='text-xs text-brand-gray flex items-center gap-1'>
-                                        <i data-lucide='clock' class='w-3 h-3'></i> ". $row['heure_debut'] . " — ". $row['heure_fin']."
+                                        <i data-lucide='clock' class='w-3 h-3'></i> " . $row['heure_debut'] . " — " . $row['heure_fin'] . "
                                     </p>
                                 </div>
                             </div>
-                            <a href='coach.php?delet=". $row["id_disponibilite"]."'>
+                            <a href='coach.php?delet=" . $row["id_disponibilite"] . "'>
                                 <button class='p-2 text-brand-gray hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all'>
                                     <i data-lucide='trash-2' class='w-4 h-4'></i>
                                 </button>

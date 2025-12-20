@@ -4,22 +4,22 @@ session_start();
 
 $msg = "";
 
-if (isset($_POST['submit'])) {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"]);
     $password = $_POST["password"];
     
-    $sql = "SELECT * FROM user WHERE email = '$email'";
-    
-    $all = mysqli_query($connect, $sql);
     
     if(empty($email) || empty($password)) {
         $msg = "<p class='text-red-700 bg-red-400/20 p-2 rounded-[10px] shadow-[0_2px_2px_rgba(250,0,1,0.7)] transition-all duration-300 ease-in-out'>Veuillez remplir tous les champs</p>";
+        return;
     }
+
+    $sql = "SELECT * FROM user WHERE email = '$email'";
+    $all = mysqli_query($connect, $sql);
 
     if(mysqli_num_rows($all) == 1){
 
         $result = mysqli_fetch_assoc($all);
-
     
         $hashpassword = $result['mot_de_passe'];
         $rolecheck = $result['role'];
@@ -29,6 +29,7 @@ if (isset($_POST['submit'])) {
 
             $_SESSION["nom"] = $result["nom"];
             $_SESSION["id_user"] = $result["id_user"];
+            $_SESSION["role"] = $result["role"];
             
             if ($rolecheck == "Coach") {
                 header("Location: coach.php");

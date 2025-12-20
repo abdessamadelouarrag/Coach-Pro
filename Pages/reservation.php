@@ -28,8 +28,12 @@ if (isset($_GET["idcoach"])) {
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     $iddispo = $_POST["id_disponibilite"];
+    $id_coach = $_POST['id_coach'];
 
-    $sqldispo = "INSERT INTO reservation ";
+    $sql = "SELECT date, heure_debut, heure_fin 
+            FROM disponibilite WHERE id_disponibilite = '$iddispo'";
+    echo "$sql";
+        
 }
 
 

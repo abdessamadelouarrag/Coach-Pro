@@ -5,29 +5,60 @@ session_start();
 $nomuser = $_SESSION["nom"];
 $iduser = $_SESSION["id_user"];
 
-if (isset($_GET["idcoach"])) {
-    $idcoach = $_GET["idcoach"];
-    $sqlcoach = "SELECT * FROM user WHERE id_user = '$idcoach'";
+$edit = false;
+$id_reservation = null;
+$old_dispo = null;
+$all = [];
 
+$nom = '';
+$bio = '';
+$specialite = '';
+$experience = '';
+$certifications = '';
+$image = '';
+
+
+if (isset($_GET['edit'])) {
+    $edit = true;
+    $id_reservation = mysqli_real_escape_string($connect, $_GET['edit']);
+
+    $sqlOld = "SELECT id_coach, id_disponibilite FROM reservation WHERE id_reservation = '$id_reservation'";
+    $resOld = mysqli_query($connect, $sqlOld);
+
+    if ($old = mysqli_fetch_assoc($resOld)) {
+        $idcoach   = $old['id_coach'];
+        $old_dispo = $old['id_disponibilite'];
+    }
+}
+
+if (isset($_GET['idcoach'])) {
+    $idcoach = $_GET['idcoach'];
+}
+
+if (isset($idcoach)) {
+
+    $sqlcoach = "SELECT * FROM user WHERE id_user = '$idcoach'";
     $results = mysqli_query($connect, $sqlcoach);
 
     if ($coach = mysqli_fetch_assoc($results)) {
         $nom = $coach["nom"];
+        $bio = $coach["bio"];
+        $image = $coach["image"];
         $specialite = $coach["specialite"];
         $experience = $coach["experience"];
         $certifications = $coach["certifications"];
-        $image = $coach["image"];
-        $bio = $coach["bio"];
     }
 
-    $sqldispo = "SELECT * FROM disponibilite WHERE id_coach = '$idcoach' AND status = 'libre'";
-    $results = mysqli_query($connect, $sqldispo);
+    // Disponibilités
+    $sqldispo = "SELECT * FROM disponibilite WHERE id_coach = '$idcoach'
+                AND (status = 'libre' OR id_disponibilite = '$old_dispo')";
 
+    $results = mysqli_query($connect, $sqldispo);
     $all = mysqli_fetch_all($results, MYSQLI_ASSOC);
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!isset($_SESSION["id_user"])) {
         header("Location: login.php");
         exit();
@@ -36,37 +67,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_sportif = $_SESSION["id_user"];
     $id_coach = $_POST["id_coach"];
     $id_dispo = $_POST["id_disponibilite"];
+    
+    $is_edit = !empty($_POST['id_reservation']); 
 
-    $sqlDispo = "SELECT date, heure_debut, heure_fin 
-                FROM disponibilite 
-                WHERE id_disponibilite = '$id_dispo' 
-                AND id_coach = '$id_coach'";
-
+    $sqlDispo = "SELECT date, heure_debut, heure_fin FROM disponibilite WHERE id_disponibilite = '$id_dispo'";
     $resDispo = mysqli_query($connect, $sqlDispo);
-
-    if (mysqli_num_rows($resDispo) !== 1) {
-        die("Créneau non valide");
-    }
-
     $dispo = mysqli_fetch_assoc($resDispo);
 
-    $sqlInsert = "INSERT INTO reservation 
-        (date_reservation, id_sportif, id_coach, id_disponibilite, heure_debut, heure_fin)
-        VALUES 
-        ('{$dispo['date']}', '$id_sportif', '$id_coach', '$id_dispo', '{$dispo['heure_debut']}', '{$dispo['heure_fin']}')";
+    if ($is_edit) {
 
-    if (mysqli_query($connect, $sqlInsert)) {
+        $id_res_to_update = $_POST['id_reservation'];
+        
+        $sqlUpdate = "UPDATE reservation SET 
+                    date_reservation='{$dispo['date']}', 
+                    id_disponibilite='$id_dispo', 
+                    heure_debut='{$dispo['heure_debut']}', 
+                    heure_fin='{$dispo['heure_fin']}' 
+                    WHERE id_reservation='$id_res_to_update'";
+        
+        mysqli_query($connect, $sqlUpdate);
 
-        $sqlupdate = "UPDATE disponibilite SET status = 'reserve' WHERE id_disponibilite = '$id_dispo'";
-        mysqli_query($connect, $sqlupdate);
+        mysqli_query($connect, "UPDATE disponibilite SET status='reserve' WHERE id_disponibilite='$id_dispo'");
 
-        header("Location: user.php?reservation=success");
+        header("Location: user.php?reservation=updated");
         exit();
+
+    } else {
+
+        $sqlInsert = "INSERT INTO reservation (date_reservation, id_sportif, id_coach, id_disponibilite, heure_debut, heure_fin)
+                    VALUES ('{$dispo['date']}', '$id_sportif', '$id_coach', '$id_dispo', '{$dispo['heure_debut']}', '{$dispo['heure_fin']}')";
+
+        if (mysqli_query($connect, $sqlInsert)) {
+            mysqli_query($connect, "UPDATE disponibilite SET status = 'reserve' WHERE id_disponibilite = '$id_dispo'");
+            header("Location: user.php?reservation=success");
+            exit();
+        }
     }
 }
-
-
-
 
 ?>
 
@@ -190,43 +227,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <form action="" method="POST" class="space-y-8">
                         <input type="hidden" name="id_coach" value="<?= $idcoach ?>">
+                        <input type="hidden" name="id_reservation" value="<?= $edit ? $id_reservation : '' ?>">
 
                         <!-- Date & Time Slot Selection -->
                         <div>
                             <label class="block text-sm font-medium text-brand-gray mb-4 uppercase tracking-wider">Créneaux Disponibles</label>
-                                <!-- Grid of Slots -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                    <?php foreach ($all as $dispo): ?>
-                                        <label class="relative cursor-pointer group">
+                            <!-- Grid of Slots -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                <?php foreach ($all as $dispo): ?>
+                                    <label class="relative cursor-pointer group">
 
-                                            <input type="radio" name="id_disponibilite" value="<?= $dispo['id_disponibilite'] ?>" class="peer sr-only" required>
+                                        <input type="radio" name="id_disponibilite" value="<?= $dispo['id_disponibilite'] ?>" class="peer sr-only" <?= ($dispo['id_disponibilite'] == $old_dispo) ? 'checked' : '' ?> required>
 
-                                            <!-- Styled Card -->
-                                            <div class="h-full bg-brand-surface border border-white/10 rounded-2xl p-4 transition-all duration-200 
+                                        <!-- Styled Card -->
+                                        <div class="h-full bg-brand-surface border border-white/10 rounded-2xl p-4 transition-all duration-200 
                                             peer-checked:border-brand-orange peer-checked:bg-brand-orange/5 peer-checked:ring-1 peer-checked:ring-brand-orange
                                             group-hover:border-white/30">
 
-                                                <div class="flex justify-between items-start mb-2">
-                                                    <span class="text-[10px] font-bold uppercase py-1 px-2 bg-white/5 rounded text-brand-gray">Session</span>
-                                                    <!-- Checkmark icon that appears when selected -->
-                                                    <div class="opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                        <i data-lucide="check-circle-2" class="w-5 h-5 text-brand-orange"></i>
-                                                    </div>
-                                                </div>
-
-                                                <div class="text-white font-semibold flex items-center gap-2 mb-1">
-                                                    <i data-lucide="calendar" class="w-4 h-4 text-brand-orange"></i>
-                                                    <?= $dispo["date"] ?>
-                                                </div>
-
-                                                <div class="text-brand-gray text-sm flex items-center gap-2">
-                                                    <i data-lucide="clock" class="w-4 h-4"></i>
-                                                    <?= $dispo["heure_debut"] ?> - <?= $dispo["heure_fin"] ?>
+                                            <div class="flex justify-between items-start mb-2">
+                                                <span class="text-[10px] font-bold uppercase py-1 px-2 bg-white/5 rounded text-brand-gray">Session</span>
+                                                <!-- Checkmark icon that appears when selected -->
+                                                <div class="opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                    <i data-lucide="check-circle-2" class="w-5 h-5 text-brand-orange"></i>
                                                 </div>
                                             </div>
-                                        </label>
-                                    <?php endforeach; ?>
-                                </div>
+
+                                            <div class="text-white font-semibold flex items-center gap-2 mb-1">
+                                                <i data-lucide="calendar" class="w-4 h-4 text-brand-orange"></i>
+                                                <?= $dispo["date"] ?>
+                                            </div>
+
+                                            <div class="text-brand-gray text-sm flex items-center gap-2">
+                                                <i data-lucide="clock" class="w-4 h-4"></i>
+                                                <?= $dispo["heure_debut"] ?> - <?= $dispo["heure_fin"] ?>
+                                            </div>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
 
                         <!-- Message Area -->

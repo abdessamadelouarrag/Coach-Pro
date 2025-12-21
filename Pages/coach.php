@@ -151,7 +151,7 @@ if(isset($_GET['refuser'])){
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <span class="text-xl font-bold">COACH<span class="text-brand-orange">PRO</span> <span class="text-xs font-normal text-brand-gray ml-2">| Espace Coach</span></span>
             <div class="flex items-center gap-4">
-                <img src="<?= $urlimage ?? '/Public/Images/noprofile.jpeg' ?>" class="w-10 h-10 rounded-full border-2 border-brand-orange">
+                <img src="<?= $urlimage ?? '/Public/Images/noprofile.jpeg' ?>" class="w-10 h-10 rounded-full border-2 border-brand-orange object-cover">
                 <a href="login.php" class="text-sm text-red-500 hover:text-red-400">Sortir</a>
             </div>
         </div>
@@ -185,7 +185,7 @@ if(isset($_GET['refuser'])){
             <div class="bg-brand-card p-6 rounded-2xl border border-white/10">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold border-l-4 border-brand-orange pl-3">Mon Profil</h3>
-                    <button class="flex items-center gap-2 text-xs bg-brand-surface px-3 py-1.5 rounded-lg border border-white/10 hover:border-brand-orange transition-all">
+                    <button onclick="toggleModal()" class="flex items-center gap-2 text-xs bg-brand-surface px-3 py-1.5 rounded-lg border border-white/10 hover:border-brand-orange transition-all">
                         <i data-lucide="edit-3" class="w-3 h-3 text-brand-orange"></i> Modifier
                     </button>
                 </div>
@@ -236,7 +236,7 @@ if(isset($_GET['refuser'])){
                     <span class="border-l-4 border-brand-orange pl-3">Demandes de Réservation</span>
                     <span class="bg-brand-orange/20 text-brand-orange text-xs px-2 py-1 rounded">En attente</span>
                 </h3>
-                <div class="bg-brand-card p-1 rounded-2xl border border-white/10 w-full h-72 overflow-auto scrollbar-res">
+                <div class="bg-brand-card p-1 rounded-2xl border border-white/10 w-full h-52 overflow-auto scrollbar-res">
     
                     <?php foreach ($allreserv as $row): ?>
                         <div class="flex items-center justify-between bg-brand-surface p-4 rounded-xl border border-white/5 mb-4">
@@ -397,6 +397,20 @@ if(isset($_GET['refuser'])){
     <script src="/Public/Js/alertDelete.js"></script>
     <script>
         lucide.createIcons();
+
+        function toggleModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('modal-active');
+        }
+
+        // Close modal if clicking outside the box
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target == modal) {
+                toggleModal();
+            }
+        }
     </script>
 </body>
 

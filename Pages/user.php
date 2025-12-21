@@ -34,7 +34,7 @@ foreach ($all2 as $dispo) {
     $dispoDeCoach[$dispo['id_coach']][] = $dispo;
 }
 
-$sqlres = "SELECT user.nom, user.image, user.specialite, reservation.date_reservation, reservation.heure_debut, reservation.heure_fin, reservation.id_sportif, reservation.status 
+$sqlres = "SELECT user.nom, user.image, user.specialite, reservation.id_reservation, reservation.date_reservation, reservation.heure_debut, reservation.heure_fin, reservation.id_sportif, reservation.status 
             from user inner join reservation on user.id_user = reservation.id_coach WHERE id_sportif = '$iduser'";
 
 $resultres = mysqli_query($connect, $sqlres);
@@ -148,13 +148,17 @@ $allres = mysqli_fetch_all($resultres, MYSQLI_ASSOC);
                                             <?= htmlspecialchars($row["status"]) ?>
                                         </span>
                                     <td class="p-4 text-right">
-                                        <div class="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 transition" title="Modifier">
-                                                <i data-lucide="pencil" class="w-4 h-4"></i>
-                                            </button>
-                                            <button class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                            </button>
+                                        <div class="flex justify-end gap-2">
+                                            <a href="reservation.php?edit=<?= $row['id_reservation'] ?>">
+                                                <button class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 transition" title="Modifier">
+                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                                </button>
+                                            </a>
+                                            <a href="deleteReserv.php?delete=<?= $row["id_reservation"] ?>" onclick="return confirm('tu est sure ?')">
+                                                <button class="p-2 bg-brand-surface border border-white/10 rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition" title="Annuler">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -196,76 +200,6 @@ $allres = mysqli_fetch_all($resultres, MYSQLI_ASSOC);
             </div>
         </div>
 
-    </div>
-
-    <!-- ================= MODALS ================= -->
-
-    <!--  MODAL RESERVATION (Création) -->
-    <div id="bookingModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 bg-brand-card border border-white/10 rounded-2xl shadow-2xl">
-            <h3 class="text-xl font-bold text-white mb-4">Nouvelle Réservation</h3>
-            <div class="bg-brand-surface p-4 rounded-xl border border-white/5 mb-4">
-                <p id="bookCoach" class="font-semibold text-brand-orange">Coach : <?= $nomuser ?></p>
-                <p id="bookDate" class="text-sm text-white">Date</p>
-            </div>
-            <textarea class="w-full bg-brand-dark border border-white/10 rounded-lg p-3 text-sm mb-4 h-20" placeholder="Note pour le coach..."></textarea>
-            <div class="grid grid-cols-2 gap-4">
-                <button class="close-model py-2 border border-white/10 rounded-lg">Annuler</button>
-                <button class="py-2 bg-brand-orange rounded-lg font-bold">Confirmer</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL MODIFICATION (Bleu/Orange) -->
-    <div id="editModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAllModals()"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 bg-brand-card border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500"><i data-lucide="calendar-days" class="w-6 h-6"></i></div>
-                <h3 class="text-xl font-bold text-white">Modifier la séance</h3>
-            </div>
-
-            <p class="text-sm text-brand-gray mb-4">Avec <span id="editCoachName" class="text-white font-semibold">Coach</span></p>
-
-            <div class="space-y-4 mb-6">
-                <div>
-                    <label class="text-xs text-brand-gray block mb-1">Nouvelle Date</label>
-                    <input type="date" class="w-full bg-brand-surface border border-white/10 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="text-xs text-brand-gray block mb-1">Nouvelle Heure</label>
-                    <input type="time" class="w-full bg-brand-surface border border-white/10 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="closeAllModals()" class="py-3 bg-transparent border border-white/10 text-white rounded-lg hover:bg-white/5 transition">Annuler</button>
-                <button onclick="confirmAction('edit')" class="py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,0.3)]">Enregistrer</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. MODAL ANNULATION (Rouge/Danger) -->
-    <div id="cancelModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAllModals()"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-6 bg-brand-card border border-red-500/30 rounded-2xl shadow-2xl animate-fade-in">
-            <div class="flex flex-col items-center text-center mb-6">
-                <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
-                    <i data-lucide="alert-triangle" class="w-8 h-8 text-red-500"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white">Annuler la réservation ?</h3>
-                <p class="text-sm text-brand-gray mt-2">Cette action est irréversible. Le coach sera notifié.</p>
-                <div class="mt-4 bg-brand-surface px-4 py-2 rounded text-sm text-white w-full">
-                    <span id="cancelDetails">Détails</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="closeAllModals()" class="py-3 bg-transparent border border-white/10 text-white rounded-lg hover:bg-white/5 transition">Retour</button>
-                <button onclick="confirmAction('cancel')" class="py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-500 transition shadow-[0_0_15px_rgba(220,38,38,0.3)]">Oui, Annuler</button>
-            </div>
-        </div>
     </div>
 
     <!-- TOAST NOTIFICATIONS -->
